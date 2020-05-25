@@ -11,5 +11,11 @@ def init_qubit(bloch_direction):
     normalized before creating the state)
 
     """
-    n = np.linalg.norm(bloch_direction)
+
+    if type(bloch_direction) == type([]):
+        n = np.array(bloch_direction)
+    else:
+        n = bloch_direction
+
+    n = np.linalg.norm(n)
     return (si + sx * n[0] + sy * n[1] + sz * n[2]) / 2
