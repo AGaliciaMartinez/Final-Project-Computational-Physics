@@ -50,7 +50,6 @@ def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
         rho_next = rho_last + 1 / 6 * dt * (k1 + 2 * k2 + 2 * k3 + k4)
 
         for num, op in enumerate(e_ops):
-            print(np.trace(rho_next @ op))
             expectations[i, num] = np.trace(rho_next @ op)
 
         rho_last = rho_next
@@ -63,7 +62,6 @@ def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
 if __name__ == "__main__":
     H = -0.1 * 2 * np.pi * np.array([[1, 0], [0, -1]])
     rho_0 = 1 / 2 * np.array([[1, 1], [1, 1]], dtype=complex)
-    # rho_0 = np.array([[1, 0], [0, 0]])
     tlist = np.linspace(0, 100, 1000)
 
     rho, expect = lindblad_solver(H,
@@ -71,7 +69,6 @@ if __name__ == "__main__":
                                   tlist,
                                   e_ops=[np.eye(2), sigmax, sigmay, sigmaz])
 
-    # fig, axes = subplots(1, 1)
     plt.plot(tlist, expect[:, 0], label='I')
     plt.plot(tlist, expect[:, 1], label='X')
     plt.plot(tlist, expect[:, 2], label='Y')
