@@ -7,22 +7,22 @@ sigmay = np.array([[0, -1j], [1j, 0]], dtype=complex)
 sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
 
 
-def _lindblad(H, rho, t, c_ops):
+def _lindblad(H, rho, t, c_ops, *args):
     """Return the evaluation of the Linbald operator."""
-    lind = -1j * (H(t) @ rho - rho @ H(t))
+    lind = -1j * (H(t, *args) @ rho - rho @ H(t, *args))
     for op in c_ops:
         lind += op @ rho @ np.conj(op) - 1 / 2 * (np.conj(op) @ op @ rho +
                                                   rho @ np.conj(op) @ op)
     return lind
 
 
-def _runge_kutta(H, rho_last, t, dt, c_ops):
+def _runge_kutta(H, rho_last, t, dt, c_ops, *args):
     """Perfor an integration step using the runge kutta 4 algorithm."""
 
-    k1 = _lindblad(H, rho_last, t, c_ops)
-    k2 = _lindblad(H, rho_last + dt / 2 * k1, t + dt / 2, c_ops)
-    k3 = _lindblad(H, rho_last + dt / 2 * k2, t + dt / 2, c_ops)
-    k4 = _lindblad(H, rho_last + dt * k3, t + dt, c_ops)
+    k1 = _lindblad(H, rho_last, t, c_ops, *args)
+    k2 = _lindblad(H, rho_last + dt / 2 * k1, t + dt / 2, c_ops, *args)
+    k3 = _lindblad(H, rho_last + dt / 2 * k2, t + dt / 2, c_ops, *args)
+    k4 = _lindblad(H, rho_last + dt * k3, t + dt, c_ops, *args)
 
     rho_next = rho_last + 1 / 6 * dt * (k1 + 2 * k2 + 2 * k3 + k4)
 
@@ -64,7 +64,7 @@ def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
 
     for i in range(1, len(tlist)):
         dt = tlist[i] - tlist[i - 1]
-        rho_next = _runge_kutta(H, rho_last, tlist[i], dt, c_ops)
+        rho_next = _runge_kutta(H, rho_last, tlist[i], dt, c_ops, *args)
 
         # Evaluate expectation values
         for num, op in enumerate(e_ops):
