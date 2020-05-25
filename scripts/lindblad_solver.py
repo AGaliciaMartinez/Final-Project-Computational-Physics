@@ -87,10 +87,10 @@ if __name__ == "__main__":
     rho, expect = lindblad_solver(H,
                                   rho_0,
                                   tlist,
-                                  c_ops=[],
+                                  c_ops=[np.sqrt(0.05) * sigmaz],
                                   e_ops=[np.eye(2), sigmax, sigmay, sigmaz])
 
-    plt.plot(tlist, expect[:, 0], label='I')
+    # plt.plot(tlist, expect[:, 0], label='I')
     plt.plot(tlist, expect[:, 1], label='X')
     plt.plot(tlist, expect[:, 2], label='Y')
     plt.plot(tlist, expect[:, 3], label='Z')
