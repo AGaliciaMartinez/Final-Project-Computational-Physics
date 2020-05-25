@@ -14,6 +14,7 @@ def init_qubit(bloch_direction):
 
     if type(bloch_direction) == type([]):
         n = np.array(bloch_direction)
+
     else:
         n = bloch_direction
 
