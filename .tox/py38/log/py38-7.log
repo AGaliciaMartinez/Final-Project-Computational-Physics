@@ -1,0 +1,23 @@
+action: py38, msg: envreport
+cwd: /home/gali/git_projects/computational_physics/Project-3_A.Galicia_nicholaszutt
+cmd: /home/gali/git_projects/computational_physics/Project-3_A.Galicia_nicholaszutt/.tox/py38/bin/python -m pip freeze
+attrs==19.3.0
+cycler==0.10.0
+kiwisolver==1.2.0
+llvmlite==0.32.1
+matplotlib==3.2.1
+more-itertools==8.3.0
+numba==0.49.1
+numpy==1.18.4
+packaging==20.4
+pluggy==0.13.1
+py==1.8.1
+py-cpuinfo==5.0.0
+pyparsing==2.4.7
+pytest==5.4.2
+pytest-benchmark==3.2.3
+python-dateutil==2.8.1
+scipy==1.4.1
+six==1.15.0
+tqdm==4.46.0
+wcwidth==0.1.9

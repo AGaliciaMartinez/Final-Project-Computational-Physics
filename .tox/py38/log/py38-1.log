@@ -1,0 +1,47 @@
+action: py38, msg: getenv
+cwd: /home/gali/git_projects/computational_physics/Project-3_A.Galicia_nicholaszutt
+cmd: /home/gali/git_projects/computational_physics/Project-3_A.Galicia_nicholaszutt/.tox/py38/bin/python -m pip install -rrequirements.txt
+Collecting pytest
+  Downloading pytest-5.4.2-py3-none-any.whl (247 kB)
+Collecting pytest-benchmark
+  Using cached pytest_benchmark-3.2.3-py2.py3-none-any.whl (49 kB)
+Collecting scipy
+  Using cached scipy-1.4.1-cp38-cp38-manylinux1_x86_64.whl (26.0 MB)
+Collecting numba
+  Downloading numba-0.49.1-cp38-cp38-manylinux2014_x86_64.whl (3.6 MB)
+Collecting matplotlib
+  Using cached matplotlib-3.2.1-cp38-cp38-manylinux1_x86_64.whl (12.4 MB)
+Collecting tqdm
+  Using cached tqdm-4.46.0-py2.py3-none-any.whl (63 kB)
+Collecting attrs>=17.4.0
+  Using cached attrs-19.3.0-py2.py3-none-any.whl (39 kB)
+Collecting py>=1.5.0
+  Using cached py-1.8.1-py2.py3-none-any.whl (83 kB)
+Collecting packaging
+  Downloading packaging-20.4-py2.py3-none-any.whl (37 kB)
+Collecting more-itertools>=4.0.0
+  Downloading more_itertools-8.3.0-py3-none-any.whl (44 kB)
+Collecting wcwidth
+  Using cached wcwidth-0.1.9-py2.py3-none-any.whl (19 kB)
+Collecting pluggy<1.0,>=0.12
+  Using cached pluggy-0.13.1-py2.py3-none-any.whl (18 kB)
+Processing /home/gali/.cache/pip/wheels/b9/fc/53/e6d25e37c45566d8ed2ec6670e78142b31256d8be4729c2965/py_cpuinfo-5.0.0-py3-none-any.whl
+Collecting numpy>=1.13.3
+  Using cached numpy-1.18.4-cp38-cp38-manylinux1_x86_64.whl (20.7 MB)
+Collecting llvmlite<=0.33.0.dev0,>=0.31.0.dev0
+  Downloading llvmlite-0.32.1-cp38-cp38-manylinux1_x86_64.whl (20.2 MB)
+Requirement already satisfied: setuptools in ./.tox/py38/lib/python3.8/site-packages (from numba->-r requirements.txt (line 4)) (46.1.3)
+Collecting cycler>=0.10
+  Using cached cycler-0.10.0-py2.py3-none-any.whl (6.5 kB)
+Collecting kiwisolver>=1.0.1
+  Using cached kiwisolver-1.2.0-cp38-cp38-manylinux1_x86_64.whl (92 kB)
+Collecting pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.1
+  Using cached pyparsing-2.4.7-py2.py3-none-any.whl (67 kB)
+Collecting python-dateutil>=2.1
+  Using cached python_dateutil-2.8.1-py2.py3-none-any.whl (227 kB)
+Collecting six
+  Downloading six-1.15.0-py2.py3-none-any.whl (10 kB)
+Installing collected packages: attrs, py, six, pyparsing, packaging, more-itertools, wcwidth, pluggy, pytest, py-cpuinfo, pytest-benchmark, numpy, scipy, llvmlite, numba, cycler, kiwisolver, python-dateutil, matplotlib, tqdm
+Successfully installed attrs-19.3.0 cycler-0.10.0 kiwisolver-1.2.0 llvmlite-0.32.1 matplotlib-3.2.1 more-itertools-8.3.0 numba-0.49.1 numpy-1.18.4 packaging-20.4 pluggy-0.13.1 py-1.8.1 py-cpuinfo-5.0.0 pyparsing-2.4.7 pytest-5.4.2 pytest-benchmark-3.2.3 python-dateutil-2.8.1 scipy-1.4.1 six-1.15.0 tqdm-4.46.0 wcwidth-0.1.9
+WARNING: You are using pip version 20.1; however, version 20.1.1 is available.
+You should consider upgrading via the '/home/gali/git_projects/computational_physics/Project-3_A.Galicia_nicholaszutt/.tox/py38/bin/python -m pip install --upgrade pip' command.
