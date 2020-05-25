@@ -1,6 +1,6 @@
 # Weekly Progress Journal
 
-### Week 1 - Planning and Project Proposal
+## Planning and Project Proposal (due May 27)
 Goal: Simulate the dynamics of Carbon-13 around NV centres in diamond,
 and investigate the coherent control of individual Carbons and pairs. 
 
@@ -23,3 +23,11 @@ a long function).
 things as a master equation solver for time evolution of a system directly from a given 
 Hamiltonian, plotting on the Bloch sphere and other cool visualization help, etc. Some of
 the functions in this package we will use to compare to our master equation solver.
+
+## Milestones
+### Week 1 (due May 27th)
+- [ ] Complete a provisional master equation solver?
+- [ ]  
+
+
+### Week 2 (due June 3rd)
