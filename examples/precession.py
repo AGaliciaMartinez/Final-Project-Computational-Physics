@@ -1,6 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import sys
+from matplotlib import pyplot as plt
+import matplotlib as mpl
 sys.path.append('../')
 from scripts.lindblad_solver import lindblad_solver
 from scripts.utils import sx, sy, sz, si
@@ -9,23 +10,10 @@ from scripts.plot_utils import set_size
 def H(t):
     return 2 * np.pi * sz
 
-def rotation(t):
-    freq = 1 / 2
-    if t <= 1:
-        Ham = freq * 2 * np.pi * sz
-    elif t > 1:
-        if t % 1 <= 0.5:
-            Ham = 0.01 * 2 * np.pi * sx + 1 / 2 * 2 * np.pi * sz
-        elif t % 1 > 0.5:
-            Ham = freq * 2 * np.pi * sz
-    return Ham
-
-
 # initial state density matrix
-# rho_0 = (si + sx) / 2
 rho_0 = (si + (sz + sx) / np.sqrt(2)) / 2
 
-tlist = np.linspace(0, 10, 10000)
+tlist = np.linspace(0, 5, 1000)
 
 rho, expect = lindblad_solver(H,
                               rho_0,
@@ -33,9 +21,24 @@ rho, expect = lindblad_solver(H,
                               c_ops=[],
                               e_ops=[np.eye(2), sx, sy, sz])
 
+# nice_fonts = {
+#     # Use LaTeX to write all text
+#     "text.usetex": True,
+#     "font.family": "serif",
+#     # Use 10pt font in plots, to match 10pt font in document
+#     "axes.labelsize": 10,
+#     "font.size": 10,
+#     # Make the legend/label fonts a little smaller
+#     "legend.fontsize": 8,
+#     "xtick.labelsize": 8,
+#     "ytick.labelsize": 8,
+# }
+
+# mpl.rcParams.update(nice_fonts)
+
 # fig, ax = plt.subplots(1,
 #                        1,
-#                        figsize=set_size(width='report_column'))
+#                        figsize=set_size(width='report_full'))
 
 # plt.figure(1)
 plt.plot(tlist, expect[:, 0], label='I')
