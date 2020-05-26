@@ -1,15 +1,14 @@
 import numpy as np
 from matplotlib import pyplot as plt
-
-sigmax = np.array([[0, 1], [1, 0]], dtype=complex)
-sigmay = np.array([[0, -1j], [1j, 0]], dtype=complex)
-sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
+import sys
+sys.path.append('../scripts/')
+from utils import sx, sy, sz, si
 
 
 def lindblad(H, rho, t, c_ops):
     lind = -1j * (H(t) @ rho - rho @ H(t))
     for op in c_ops:
-        lind += np.conj(op) @ rho @ op - 1 / 2 * (np.conj(op) @ op @ rho -
+        lind += np.conj(op) @ rho @ op - 1 / 2 * (np.conj(op) @ op @ rho +
                                                   rho @ np.conj(op) @ op)
     return lind
 
@@ -52,11 +51,10 @@ def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
     # defining the necessary lists to store expectation values and states
     expectations = np.zeros((len(tlist), len(e_ops)))
     rho_last = rho_0
-    # print(rho_last)
+
     for num, op in enumerate(e_ops):
         expectations[0, num] = np.trace(rho_last @ op)
 
-    print(expectations[0, :])
 
     for i in range(1, len(tlist)):
         # # euler integration method
@@ -87,8 +85,8 @@ if __name__ == "__main__":
     rho, expect = lindblad_solver(H,
                                   rho_0,
                                   tlist,
-                                  c_ops=[np.sqrt(0.05) * sigmaz],
-                                  e_ops=[np.eye(2), sigmax, sigmay, sigmaz])
+                                  c_ops=[np.sqrt(0.05) * sz],
+                                  e_ops=[np.eye(2), sx, sy, sz])
 
     plt.plot(tlist, expect[:, 0], label='I')
     plt.plot(tlist, expect[:, 1], label='X')
