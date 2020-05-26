@@ -25,7 +25,13 @@ the functions in this package we will use to compare to our master equation solv
 ## Milestones
 ### Week 1 (due May 27th)
 - [X] Complete a provisional master equation solver
-- [ ] Test the solver with simple systems, shown in the examples folder.
 - [ ] Implement tox
+
+- [X] Started creating examples of dynamical systems using the [lindblad solver]
+      function, which can be found in the
+      [examples](https://gitlab.kwant-project.org/computational_physics_projects/Project-3_A.Galicia_nicholaszutt/-/tree/master/examples)
+      folder.
+      
+      1. We verified that the Lindbladian was implementing the right dynamics by showing the precession of a spin under the influence of a magnetic field in the z direction. We can show how tilting the angle of precession
 
 ### Week 2 (due June 3rd)

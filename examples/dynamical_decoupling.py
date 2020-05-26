@@ -5,7 +5,7 @@ sys.path.append('../scripts/')
 from utils import sx, sy, sz, si
 from lindblad_solver import lindblad_solver
 
-rho_0 = 1 / 2 * np.kron((si + sx) / 2, si)
+rho_0 = 1 / 2 * np.kron((si + sy) / 2, si)
 print(rho_0)
 
 wL = 1.0
@@ -15,10 +15,8 @@ A = wh * np.cos(theta)
 B = wh * np.sin(theta)
 fac = 2 * np.pi
 
-# H0 = wL * sz
-# H1 = H0 + A * sz + B * sx
-
-Ham = fac * (A * np.kron(sz, sz) + B * np.kron(sz, sx) + wL * np.kron(si, sz))
+Ham = wL * np.kron(sz, sz)
+# Ham = fac * (A * np.kron(sz, sz) + B * np.kron(sz, sx) + wL * np.kron(si, sz))
 print(Ham)
 
 

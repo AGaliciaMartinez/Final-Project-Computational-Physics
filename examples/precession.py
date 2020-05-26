@@ -4,52 +4,44 @@ import sys
 sys.path.append('../')
 from scripts.lindblad_solver import lindblad_solver
 from scripts.utils import sx, sy, sz, si
+from scripts.plot_utils import set_size
 
-# def rotation(t):
-#     freq = 1 / 2
-#     if t <= 1:
-#         Ham = freq * 2 * np.pi * sz
-#     elif t > 1:
-#         if t % 1 <= 0.5:
-#             Ham = 0.01 * 2 * np.pi * sx + 1 / 2 * 2 * np.pi * sz
-#         elif t % 1 > 0.5:
-#             Ham = freq * 2 * np.pi * sz
-#     return Ham
+def H(t):
+    return 2 * np.pi * sz
 
-# # initial state density matrix
-# # rho_0 = (si + sx) / 2
-# rho_0 = (si + sz) / 2
+def rotation(t):
+    freq = 1 / 2
+    if t <= 1:
+        Ham = freq * 2 * np.pi * sz
+    elif t > 1:
+        if t % 1 <= 0.5:
+            Ham = 0.01 * 2 * np.pi * sx + 1 / 2 * 2 * np.pi * sz
+        elif t % 1 > 0.5:
+            Ham = freq * 2 * np.pi * sz
+    return Ham
 
-# tlist = np.linspace(0, 200, 10000)
 
-# rho, expect = lindblad_solver(rotation,
-#                               rho_0,
-#                               tlist,
-#                               c_ops=[],
-#                               e_ops=[np.eye(2), sx, sy, sz])
+# initial state density matrix
+# rho_0 = (si + sx) / 2
+rho_0 = (si + (sz + sx) / np.sqrt(2)) / 2
 
-# plt.plot(tlist, expect[:, 0], label='I')
-# plt.plot(tlist, expect[:, 1], label='X')
-# plt.plot(tlist, expect[:, 2], label='Y')
-# plt.plot(tlist, expect[:, 3], label='Z')
-# plt.legend()
-# plt.show()
+tlist = np.linspace(0, 10, 10000)
 
-# import qutip
-# # generate test matrix (using qutip for convenience)
-# dm = qutip.rand_dm_hs(8, dims=[[2, 4]] * 2).full()
-# print(dm)
-# # reshape to do the partial trace easily using np.einsum
-# reshaped_dm = dm.reshape([2, 4, 2, 4])
-# # compute the partial trace
-# reduced_dm = np.einsum('ijik->jk', reshaped_dm)
+rho, expect = lindblad_solver(H,
+                              rho_0,
+                              tlist,
+                              c_ops=[],
+                              e_ops=[np.eye(2), sx, sy, sz])
 
-dm = 1 / 2 * np.array([[0, 0, 0, 0], [0, 1, -1, 0], [0, -1, 1, 0],
-                       [0, 0, 0, 0]])
-print(dm)
-reshaped_dm = dm.reshape([2, 2, 2, 2])
-print(reshaped_dm)
-reduced_dm1 = np.einsum('jiki->jk', reshaped_dm)
-reduced_dm2 = np.einsum('ijik->jk', reshaped_dm)
-print(reduced_dm1)
-print(reduced_dm2)
+# fig, ax = plt.subplots(1,
+#                        1,
+#                        figsize=set_size(width='report_column'))
+
+# plt.figure(1)
+plt.plot(tlist, expect[:, 0], label='I')
+plt.plot(tlist, expect[:, 1], label='X')
+plt.plot(tlist, expect[:, 2], label='Y')
+plt.plot(tlist, expect[:, 3], label='Z')
+plt.legend()
+# plt.tight_layout()
+plt.show()
