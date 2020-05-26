@@ -167,3 +167,4 @@ report-blx.bib
 report/auto/
 
 .tox*
+tox/*
