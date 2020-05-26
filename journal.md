@@ -6,7 +6,7 @@ and investigate the coherent control of individual Carbons and pairs.
 
 We wish to solve the Lindblad equation for the evolution of Carbon-13 near NV centres in
 diamond. This solver will constitute the main computational task of the project, which we
-will then apply to finding interesting results about the system in the form of plots that
+will then apply to finding interesting results about systems in the form of plots that
 can be compared to recent literature in the field.
 
 We want to start by finding how a dynamical decoupling sequence of varying tau value (the 
@@ -16,9 +16,7 @@ the two spins become entangled).
 
 We have done some research and found a few keys resources:
 1. Recent papers outlining the decoupling sequence and how the electron state can be 
-computed from the physical parameters of the system (this information makes the first plot
-we want to create less of a computationally difficult task and more an exercise in plotting
-a long function).
+computed from the physical parameters of the system.
 2. A Python library called QuTiP. This is a very valuable quantum toolbox, including such 
 things as a master equation solver for time evolution of a system directly from a given 
 Hamiltonian, plotting on the Bloch sphere and other cool visualization help, etc. Some of
@@ -26,8 +24,8 @@ the functions in this package we will use to compare to our master equation solv
 
 ## Milestones
 ### Week 1 (due May 27th)
-- [ ] Complete a provisional master equation solver?
-- [ ]  
-
+- [X] Complete a provisional master equation solver
+- [ ] Test the solver with simple systems, shown in the examples folder.
+- [ ] Implement tox
 
 ### Week 2 (due June 3rd)
