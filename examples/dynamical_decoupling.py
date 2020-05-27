@@ -2,8 +2,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sys
 sys.path.append('../scripts/')
-from utils import sx, sy, sz, si
+from utils import sx, sy, sz, si, init_qubit
 from lindblad_solver import lindblad_solver
+from tqdm import tqdm
+import multiprocessing as mp
 
 wL = 1.0
 wh = 0.01
@@ -11,30 +13,30 @@ theta = np.pi / 4
 A = wh * np.cos(theta)
 B = wh * np.sin(theta)
 fac = 2 * np.pi
-
-rho_0 = 1 / 2 * np.kron((si + sz) / np.sqrt(2), (si + sz) / np.sqrt(2))
+# rho_0 = np.kron((si + sx) / 2, si / 2)
+rho_0 = np.kron((si + sx) / 2, si / 2)
 
 
 def H(t):
-    return fac * (A * np.kron(sz, sz) + B * np.kron(sz, sx) +
-                  wL * np.kron(si, sz))
+    return fac * (A * np.kron((si - sz) / 2, sz) + B * np.kron(
+        (si - sz) / 2, sx) + wL * np.kron((si + sz) / 2, sz))
 
 
-print(H(0))
+tau = 0.25
+steps = 25
+N = 16
+# tlist = np.linspace(0, 4 * tau * N, int(4 * tau * N / dt))
+
+e_ops = [np.kron(sx, si)]
 
 
-def dynamical_decoupling(H,
-                         rho_0,
-                         tau,
-                         dt,
-                         N,
-                         c_ops=[],
-                         e_ops=[],
-                         debug=False):
-    time1 = np.arange(0, tau, dt)
-    time2 = np.arange(0, 2 * tau, dt)
+def dynamical_decoupling(tau):
+    time1 = np.linspace(0, tau, steps)
+    time2 = np.linspace(tau, 3 * tau, 2 * steps)
+    time3 = np.linspace(3 * tau, 4 * tau, steps)
     rho_last = rho_0
     expectations = np.empty((0, len(e_ops)))
+    times = []
     for i in range(N):
         # tau evolution
         rho, expect = lindblad_solver(H,
@@ -53,57 +55,66 @@ def dynamical_decoupling(H,
         # tau flipped back evolution
         rho_flb, expect_flb = lindblad_solver(H,
                                               rho_next2,
-                                              time1,
+                                              time3,
                                               c_ops=[],
                                               e_ops=e_ops)
 
-        rho_flb = rho_last
+        rho_last = rho_flb
         expectations = np.concatenate(
-            (expectations, expect, expect_fl, expect_flb), axis=0)
+            (expectations, expect[:-1], expect_fl[:-1], expect_flb[:-1]),
+            axis=0)
+        times = np.concatenate((times, time1[:-1], time2[:-1], time3[:-1]),
+                               axis=0)
 
-    if debug:
-        return rho_last, expectations
-    elif not debug:
-        return expectations
+        time1 = time1 + 4 * tau
+        time2 = time2 + 4 * tau
+        time3 = time3 + 4 * tau
+    return expectations[-1, 0]
 
 
 if __name__ == '__main__':
-    tau = 0.5
-    dt = 0.01
-    N = 16
-    tlist = np.linspace(0, 4 * tau * N, int(4 * tau * N / dt))
 
-    e_ops = [
-        np.kron(si, si),
-        np.kron(sx, si),
-        np.kron(sy, si),
-        np.kron(sz, si),
-        np.kron(si, sx),
-        np.kron(si, sy),
-        np.kron(si, sz)
-    ]
+    taus = np.linspace(0.05, 2, 99)
+    Px = []
 
-    rho, expectations = dynamical_decoupling(H,
-                                             rho_0,
-                                             tau,
-                                             dt,
-                                             N,
-                                             c_ops=[],
-                                             e_ops=e_ops,
-                                             debug=True)
-    # print(expectations)
+with mp.Pool(processes=mp.cpu_count()
+             ) as pool:  # By default maximum number of processes.
+    results = list(tqdm(pool.imap(dynamical_decoupling, taus),
+                        total=len(taus)))
 
-    # tlist = np.linspace(0, 2, 20)
-    plt.plot(tlist, expectations[:, 0], label='I')
-    plt.plot(tlist, expectations[:, 1], label='X')
-    plt.plot(tlist, expectations[:, 2], label='Y')
-    plt.plot(tlist, expectations[:, 3], label='Z')
-    plt.legend()
+    # for tau in tqdm(taus):
+    #     rho, expectations, times = dynamical_decoupling(H,
+    #                                                     rho_0,
+    #                                                     tau,
+    #                                                     steps,
+    #                                                     N,
+    #                                                     c_ops=[],
+    #                                                     e_ops=e_ops,
+    #                                                     debug=True)
+    # Px.append(expectations[-1, 1])
+
+    plt.plot(taus, results)
     plt.show()
 
-    plt.plot(tlist, expectations[:, 0], label='I')
-    plt.plot(tlist, expectations[:, 4], label='X')
-    plt.plot(tlist, expectations[:, 5], label='Y')
-    plt.plot(tlist, expectations[:, 6], label='Z')
-    plt.legend()
-    plt.show()
+    # rho, expectations, times = dynamical_decoupling(H,
+    #                                                 rho_0,
+    #                                                 tau,
+    #                                                 steps,
+    #                                                 N,
+    #                                                 c_ops=[],
+    #                                                 e_ops=e_ops,
+    #                                                 debug=True)
+
+    # # plt.plot(tlist, expectations[:, 0], label='I')
+    # # plt.plot(tlist, expectations[:, 1], label='X')
+    # # plt.plot(tlist, expectations[:, 2], label='Y')
+    # plt.plot(times, expectations[:, 3], label='Z')
+    # # plt.legend()
+    # # plt.show()
+
+    # plt.plot(times, expectations[:, 0], label='I')
+    # plt.plot(times, expectations[:, 4], label='X')
+    # plt.plot(times, expectations[:, 5], label='Y')
+    # plt.plot(times, expectations[:, 6], label='Z')
+    # plt.legend()
+    # plt.show()
