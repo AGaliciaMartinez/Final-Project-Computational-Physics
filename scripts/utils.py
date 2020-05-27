@@ -21,3 +21,43 @@ def init_qubit(bloch_direction):
 
     n = n / np.linalg.norm(n)
     return (si + sx * n[0] + sy * n[1] + sz * n[2]) / 2
+
+
+def normal_autocorr_generator(mu, sigma, tau, seed):
+    """Returns an iterator that is used to generate an autocorrelated sequence of
+    Gaussian random numbers.
+
+    Each of the random numbers in the sequence is distributed
+    according to a Gaussian with mean `mu` and standard deviation `sigma` (just
+    as in `numpy.random.normal`, with `loc=mu` and `scale=sigma`). Subsequent
+    random numbers are correlated such that the autocorrelation function
+    is on average `exp(-n/tau)` where `n` is the distance between random
+    numbers in the sequence.
+
+    This function implements the algorithm described in
+    https://www.cmu.edu/biolphys/deserno/pdf/corr_gaussian_random.pdf
+
+    Parameters
+    ----------
+
+    mu: float
+        mean of each Gaussian random number
+    sigma: float
+        standard deviation of each Gaussian random number
+    tau: float
+        autocorrelation time
+
+    Returns:
+    --------
+    sequence: numpy array
+        array of autocorrelated random numbers
+
+    """
+    f = np.exp(-1. / tau)
+
+    rng = np.random.default_rng(seed=seed)
+    sequence = rng.normal(0, 1)
+
+    while True:
+        sequence = f * sequence + np.sqrt(1 - f**2) * rng.normal(0, 1)
+        yield mu + sigma * sequence
