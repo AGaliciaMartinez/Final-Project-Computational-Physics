@@ -23,11 +23,12 @@ def H(t):
 
 
 tau = 0.25
-steps = 25
+steps = 100
 N = 16
 # tlist = np.linspace(0, 4 * tau * N, int(4 * tau * N / dt))
 
-e_ops = [np.kron(sx, si)]
+# e_ops = [np.kron(sx, si)]
+e_ops = []
 
 
 def dynamical_decoupling(tau):
@@ -35,7 +36,7 @@ def dynamical_decoupling(tau):
     time2 = np.linspace(tau, 3 * tau, 2 * steps)
     time3 = np.linspace(3 * tau, 4 * tau, steps)
     rho_last = rho_0
-    expectations = np.empty((0, len(e_ops)))
+    expectations = np.empty((len(e_ops), 0))
     times = []
     for i in range(N):
         # tau evolution
@@ -60,27 +61,29 @@ def dynamical_decoupling(tau):
                                               e_ops=e_ops)
 
         rho_last = rho_flb
-        expectations = np.concatenate(
-            (expectations, expect[:-1], expect_fl[:-1], expect_flb[:-1]),
-            axis=0)
-        times = np.concatenate((times, time1[:-1], time2[:-1], time3[:-1]),
-                               axis=0)
+        # expectations = np.concatenate((expectations, expect[:, :-1],
+        #                                expect_fl[:, :-1], expect_flb[:, :-1]),
+        #                               axis=1)
+        # times = np.concatenate((times, time1[:-1], time2[:-1], time3[:-1]),
+        #                        axis=0)
 
         time1 = time1 + 4 * tau
         time2 = time2 + 4 * tau
         time3 = time3 + 4 * tau
-    return expectations[-1, 0]
+    # return expectations[0, -1]
+    return np.trace(rho_last @ np.kron(sx, si))
 
 
 if __name__ == '__main__':
 
-    taus = np.linspace(0.05, 2, 99)
+    taus = np.linspace(1.00, 2, 100)
     Px = []
 
-with mp.Pool(processes=mp.cpu_count()
-             ) as pool:  # By default maximum number of processes.
-    results = list(tqdm(pool.imap(dynamical_decoupling, taus),
-                        total=len(taus)))
+    with mp.Pool(processes=mp.cpu_count()
+                 ) as pool:  # By default maximum number of processes.
+        results = list(
+            tqdm(pool.imap(dynamical_decoupling, taus), total=len(taus)))
+        print(results)
 
     # for tau in tqdm(taus):
     #     rho, expectations, times = dynamical_decoupling(H,

@@ -1,27 +1,18 @@
 import numpy as np
 from matplotlib import pyplot as plt
-<<<<<<< HEAD
 from utils import si, sx, sy, sz, init_qubit
 
 sigmax = np.array([[0, 1], [1, 0]], dtype=complex)
 sigmay = np.array([[0, -1j], [1j, 0]], dtype=complex)
 sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
-=======
-import sys
-sys.path.append('../scripts/')
 from utils import sx, sy, sz, si
->>>>>>> e9c0182d99cb25528a696e51a1635ad48c35571c
 
 
 def _lindblad(H, rho, t, c_ops, *args):
     """Return the evaluation of the Linbald operator."""
     lind = -1j * (H(t, *args) @ rho - rho @ H(t, *args))
     for op in c_ops:
-<<<<<<< HEAD
         lind += op @ rho @ np.conj(op) - 1 / 2 * (np.conj(op) @ op @ rho +
-=======
-        lind += np.conj(op) @ rho @ op - 1 / 2 * (np.conj(op) @ op @ rho +
->>>>>>> e9c0182d99cb25528a696e51a1635ad48c35571c
                                                   rho @ np.conj(op) @ op)
     return lind
 
@@ -41,7 +32,7 @@ def _runge_kutta(H, rho_last, t, dt, c_ops, *args):
 
 def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
     """Main solver for the Linbald equation. It uses Runge Kutta 4 to solve the
-    ordinari differential equations.
+    ordinary differential equations.
 
     Input:
 
