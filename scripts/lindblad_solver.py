@@ -1,32 +1,39 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import sys
-sys.path.append('../scripts/')
+from utils import si, sx, sy, sz, init_qubit
+
+sigmax = np.array([[0, 1], [1, 0]], dtype=complex)
+sigmay = np.array([[0, -1j], [1j, 0]], dtype=complex)
+sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
 from utils import sx, sy, sz, si
 
 
-def lindblad(H, rho, t, c_ops):
-    lind = -1j * (H(t) @ rho - rho @ H(t))
+def _lindblad(H, rho, t, c_ops, *args):
+    """Return the evaluation of the Linbald operator."""
+    lind = -1j * (H(t, *args) @ rho - rho @ H(t, *args))
     for op in c_ops:
-        lind += np.conj(op) @ rho @ op - 1 / 2 * (np.conj(op) @ op @ rho +
+        lind += op @ rho @ np.conj(op) - 1 / 2 * (np.conj(op) @ op @ rho +
                                                   rho @ np.conj(op) @ op)
     return lind
 
 
-def runge_kutta(H, rho_last, t, dt, c_ops):
+def _runge_kutta(H, rho_last, t, dt, c_ops, *args):
+    """Perfor an integration step using the runge kutta 4 algorithm."""
 
-    k1 = lindblad(H, rho_last, t, c_ops)
-    k2 = lindblad(H, rho_last + dt / 2 * k1, t + dt / 2, c_ops)
-    k3 = lindblad(H, rho_last + dt / 2 * k2, t + dt / 2, c_ops)
-    k4 = lindblad(H, rho_last + dt * k3, t + dt, c_ops)
+    k1 = _lindblad(H, rho_last, t, c_ops, *args)
+    k2 = _lindblad(H, rho_last + dt / 2 * k1, t + dt / 2, c_ops, *args)
+    k3 = _lindblad(H, rho_last + dt / 2 * k2, t + dt / 2, c_ops, *args)
+    k4 = _lindblad(H, rho_last + dt * k3, t + dt, c_ops, *args)
 
     rho_next = rho_last + 1 / 6 * dt * (k1 + 2 * k2 + 2 * k3 + k4)
 
     return rho_next
 
 
-def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
-    """
+def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
+    """Main solver for the Linbald equation. It uses Runge Kutta 4 to solve the
+    ordinary differential equations.
+
     Input:
 
     H - the Hamiltonian of the system to be evolved
@@ -34,6 +41,8 @@ def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
     rho_0 - initial state (must be a density matrix)
 
     tlist - the list of times over which to evolve the system
+
+    *args - extra arguments passed to the Hamiltonian.
 
     c_ops - collapse operators
 
@@ -47,50 +56,45 @@ def lindblad_solver(H, rho_0, tlist, c_ops=[], e_ops=[], *args):
     expectations - the expectation values at each time step
 
     """
+    # Allocation of arrays
+    expectations = np.zeros((len(e_ops), len(tlist)))
+    rho = rho_0
 
-    # defining the necessary lists to store expectation values and states
-    expectations = np.zeros((len(tlist), len(e_ops)))
-    rho_last = rho_0
-
+    # Evaluate expectation values
     for num, op in enumerate(e_ops):
-        expectations[0, num] = np.trace(rho_last @ op)
+        expectations[num, 0] = np.trace(rho @ op)
 
-
-    for i in range(1, len(tlist)):
-        # # euler integration method
-        # f = -1j * (H @ rho_last - rho_last @ H)
-        # rho_next = f * (tlist[i] - tlist[i - 1]) + rho_last
-
+    for i, t in enumerate(tlist[1:], 1):
         dt = tlist[i] - tlist[i - 1]
-        rho_next = runge_kutta(H, rho_last, tlist[i], dt, c_ops)
+        rho = _runge_kutta(H, rho, t, dt, c_ops, *args)
 
+        # Evaluate expectation values (TODO implement numpy like expression)
         for num, op in enumerate(e_ops):
-            expectations[i, num] = np.trace(rho_next @ op)
+            expectations[num, i] = np.trace(rho @ op)
 
-        rho_last = rho_next
-    rho_f = rho_last
-
-    return rho_f, expectations
+    return rho, expectations
 
 
 if __name__ == "__main__":
-    Ham = np.array([[1, 0], [0, -1]])
+    Ham = sz
 
-    def H(t):
-        return Ham
+    def H(t, frequency):
+        return Ham * frequency
 
-    rho_0 = 1 / 2 * np.array([[1, 1], [1, 1]], dtype=complex)
-    tlist = np.linspace(0, 100, 1000)
+    rho_0 = init_qubit([1, 0, 0])
+    tlist = np.linspace(0, 100, 10)
 
+    frequency = 0.5
     rho, expect = lindblad_solver(H,
                                   rho_0,
                                   tlist,
+                                  frequency,
                                   c_ops=[np.sqrt(0.05) * sz],
-                                  e_ops=[np.eye(2), sx, sy, sz])
+                                  e_ops=[si, sx, sy, sz])
 
-    plt.plot(tlist, expect[:, 0], label='I')
-    plt.plot(tlist, expect[:, 1], label='X')
-    plt.plot(tlist, expect[:, 2], label='Y')
-    plt.plot(tlist, expect[:, 3], label='Z')
+    plt.plot(tlist, expect[0, :], label='I')
+    plt.plot(tlist, expect[1, :], label='X')
+    plt.plot(tlist, expect[2, :], label='Y')
+    plt.plot(tlist, expect[3, :], label='Z')
     plt.legend()
     plt.show()
