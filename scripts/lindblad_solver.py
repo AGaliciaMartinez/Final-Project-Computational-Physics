@@ -42,6 +42,8 @@ def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
 
     tlist - the list of times over which to evolve the system
 
+    *args - extra arguments passed to the Hamiltonian.
+
     c_ops - collapse operators
 
     e_ops - desired expectation value operators
@@ -54,26 +56,23 @@ def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
     expectations - the expectation values at each time step
 
     """
-
     # Allocation of arrays
     expectations = np.zeros((len(e_ops), len(tlist)))
-    rho_last = rho_0
+    rho = rho_0
+
     # Evaluate expectation values
     for num, op in enumerate(e_ops):
-        expectations[num, 0] = np.trace(rho_last @ op)
+        expectations[num, 0] = np.trace(rho @ op)
 
-    for i in range(1, len(tlist)):
+    for i, t in enumerate(tlist[1:], 1):
         dt = tlist[i] - tlist[i - 1]
-        rho_next = _runge_kutta(H, rho_last, tlist[i], dt, c_ops, *args)
+        rho = _runge_kutta(H, rho, t, dt, c_ops, *args)
 
-        # Evaluate expectation values
+        # Evaluate expectation values (TODO implement numpy like expression)
         for num, op in enumerate(e_ops):
-            expectations[num, i] = np.trace(rho_next @ op)
+            expectations[num, i] = np.trace(rho @ op)
 
-        rho_last = rho_next
-    rho_f = rho_last
-
-    return rho_f, expectations
+    return rho, expectations
 
 
 if __name__ == "__main__":
@@ -83,9 +82,9 @@ if __name__ == "__main__":
         return Ham * frequency
 
     rho_0 = init_qubit([1, 0, 0])
-    tlist = np.linspace(0, 100, 1000)
-    frequency = 1
+    tlist = np.linspace(0, 100, 10)
 
+    frequency = 0.5
     rho, expect = lindblad_solver(H,
                                   rho_0,
                                   tlist,
