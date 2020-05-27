@@ -13,7 +13,6 @@ theta = np.pi / 4
 A = wh * np.cos(theta)
 B = wh * np.sin(theta)
 fac = 2 * np.pi
-# rho_0 = np.kron((si + sx) / 2, si / 2)
 rho_0 = np.kron((si + sx) / 2, si / 2)
 
 
