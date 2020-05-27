@@ -13,7 +13,6 @@ theta = np.pi / 4
 A = wh * np.cos(theta)
 B = wh * np.sin(theta)
 fac = 2 * np.pi
-# rho_0 = np.kron((si + sx) / 2, si / 2)
 rho_0 = np.kron((si + sx) / 2, si / 2)
 
 
@@ -23,7 +22,7 @@ def H(t):
 
 
 tau = 0.25
-steps = 25
+steps = 100
 N = 16
 # tlist = np.linspace(0, 4 * tau * N, int(4 * tau * N / dt))
 
@@ -74,7 +73,7 @@ def dynamical_decoupling(tau):
 
 if __name__ == '__main__':
 
-    taus = np.linspace(0.05, 2, 99)
+    taus = np.linspace(0.05, 1, 199)
     Px = []
 
 with mp.Pool(processes=mp.cpu_count()
