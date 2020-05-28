@@ -8,29 +8,37 @@ sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
 from utils import sx, sy, sz, si
 
 
-def _lindblad(H, rho, t, c_ops, *args):
+def _lindblad(H, rho, c_ops):
     """Return the evaluation of the Linbald operator."""
-    lind = -1j * (H(t, *args) @ rho - rho @ H(t, *args))
+    lind = -1j * (H @ rho - rho @ H)
     for op in c_ops:
         lind += op @ rho @ np.conj(op) - 1 / 2 * (np.conj(op) @ op @ rho +
                                                   rho @ np.conj(op) @ op)
     return lind
 
 
-def _runge_kutta(H, rho_last, t, dt, c_ops, *args):
+def _runge_kutta_generator(H, rho, tlist, c_ops, *args):
     """Perfor an integration step using the runge kutta 4 algorithm."""
+    H_t = H(tlist[1], *args)
+    for i, t in enumerate(tlist[1:], 1):
+        dt = tlist[i] - tlist[i - 1]
 
-    k1 = _lindblad(H, rho_last, t, c_ops, *args)
-    k2 = _lindblad(H, rho_last + dt / 2 * k1, t + dt / 2, c_ops, *args)
-    k3 = _lindblad(H, rho_last + dt / 2 * k2, t + dt / 2, c_ops, *args)
-    k4 = _lindblad(H, rho_last + dt * k3, t + dt, c_ops, *args)
+        H_t_dt_2 = H(t + dt / 2, *args)
+        H_t_dt = H(t + dt, *args)
 
-    rho_next = rho_last + 1 / 6 * dt * (k1 + 2 * k2 + 2 * k3 + k4)
+        k1 = _lindblad(H_t, rho, c_ops)
+        k2 = _lindblad(H_t_dt_2, rho + dt / 2 * k1, c_ops)
+        k3 = _lindblad(H_t_dt_2, rho + dt / 2 * k2, c_ops)
+        k4 = _lindblad(H_t_dt, rho + dt * k3, c_ops)
 
-    return rho_next
+        H_t = H_t_dt
+
+        rho = rho + 1 / 6 * dt * (k1 + 2 * k2 + 2 * k3 + k4)
+
+        yield rho
 
 
-def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
+def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
     """Main solver for the Linbald equation. It uses Runge Kutta 4 to solve the
     ordinary differential equations.
 
@@ -38,7 +46,7 @@ def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
 
     H - the Hamiltonian of the system to be evolved
 
-    rho_0 - initial state (must be a density matrix)
+    rho - initial state (must be a density matrix)
 
     tlist - the list of times over which to evolve the system
 
@@ -58,19 +66,17 @@ def lindblad_solver(H, rho_0, tlist, *args, c_ops=[], e_ops=[]):
     """
     # Allocation of arrays
     expectations = np.zeros((len(e_ops), len(tlist)))
-    rho = rho_0
 
     # Evaluate expectation values
     for num, op in enumerate(e_ops):
         expectations[num, 0] = np.trace(rho @ op)
 
-    for i, t in enumerate(tlist[1:], 1):
-        dt = tlist[i] - tlist[i - 1]
-        rho = _runge_kutta(H, rho, t, dt, c_ops, *args)
+    rk_iterator = _runge_kutta_generator(H, rho, tlist, c_ops, *args)
 
+    for i, rho in enumerate(rk_iterator):
         # Evaluate expectation values (TODO implement numpy like expression)
         for num, op in enumerate(e_ops):
-            expectations[num, i] = np.trace(rho @ op)
+            expectations[num, i + 1] = np.trace(rho @ op)
 
     return rho, expectations
 
