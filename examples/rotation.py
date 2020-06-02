@@ -2,10 +2,10 @@ import numpy as np
 import sys
 from matplotlib import pyplot as plt
 import matplotlib as mpl
-sys.path.append('../')
-from scripts.lindblad_solver import lindblad_solver
-from scripts.utils import sx, sy, sz, si
-from scripts.plot_utils import set_size
+sys.path.append('../scripts')
+from lindblad_solver import lindblad_solver
+from utils import sx, sy, sz, si
+from plot_utils import set_size
 
 
 def rotation(t):

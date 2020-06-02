@@ -48,7 +48,7 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
     time2 = np.linspace(tau, 3 * tau, 2 * steps)
     time3 = np.linspace(3 * tau, 4 * tau, steps)
 
-    # initial density matrix
+    # initial density matrix for ms=0
     rho_last = rho_0
 
     # implement N dynamical decoupling cycles
@@ -77,27 +77,55 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
         time1 = time1 + 4 * tau
         time2 = time2 + 4 * tau
         time3 = time3 + 4 * tau
-    return np.trace(rho_last @ np.kron(sx, si))
+
+    exp = [
+        np.trace(rho_last @ np.kron(si, sx)),
+        np.trace(rho_last @ np.kron(si, sy)),
+        np.trace(rho_last @ np.kron(si, sz))
+    ]
+    return exp[0], exp[1], exp[2]
 
 
-if __name__ == '__main__':
-    steps = 500
-    N = 8
-    rho_0 = np.kron((si + sx) / 2, si / 2)
-    taus = np.linspace(4.00, 5.00, 300)
+if __name__ == "__main__":
 
-    args1 = [1.0, 0.01, np.pi / 4]
-    parameters1 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args1[0]), repeat(args1[1]), repeat(args1[2]))
+    steps = 200
+    args = [1.0, 0.01, np.pi / 4]
+    rho_0 = np.kron((si - sz) / 2, (si + sz) / 2)
+    tau = 1.2422
+    N = np.arange(0, 33)
+    case = 0  # 0 for e- in |0> state, 1 for |1>
+
+    if case == 0:
+        rho_0 = np.kron((si + sz) / 2, (si + sz) / 2)
+    elif case == 1:
+        rho_0 = np.kron((si - sz) / 2, (si + sz) / 2)
+
+    parameters = zip(repeat(H), repeat(rho_0), N, repeat(tau), repeat(steps),
+                     repeat(args[0]), repeat(args[1]), repeat(args[2]))
     with mp.Pool(processes=mp.cpu_count()) as pool:
-        results1 = list(tqdm(pool.starmap(dynamical_decoupling, parameters1)))
+        results = pool.starmap(dynamical_decoupling, parameters)
 
-    args2 = [1.0, 0.011, np.pi / 6]
-    parameters2 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args2[0]), repeat(args2[1]), repeat(args2[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        results2 = list(tqdm(pool.starmap(dynamical_decoupling, parameters2)))
+    px = np.zeros(len(N))
+    py = np.zeros(len(N))
+    pz = np.zeros(len(N))
+    for i in N - 1:
+        px[i] = results[i][0]
+        py[i] = results[i][1]
+        pz[i] = results[i][2]
 
-    plt.plot(taus, results1)
-    plt.plot(taus, results2)
+    plt.plot(N, px, label='X', color='green')
+    plt.plot(N, py, label='Y', color='red')
+    plt.plot(N, pz, label='Z', color='black')
+    plt.legend()
     plt.show()
+
+    # rho_0 = np.kron((si + sx) / 2, si / 2)
+    # N = 8
+    # taus = np.linspace(1.00, 2.00, 100)
+    # parameters = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
+    #                  repeat(args[0]), repeat(args[1]), repeat(args[2]))
+    # with mp.Pool(processes=mp.cpu_count()) as pool:
+    #     results = pool.starmap(dynamical_decoupling, parameters)
+
+    # plt.plot(taus, results)
+    # plt.show()

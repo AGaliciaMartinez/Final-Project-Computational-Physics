@@ -18,7 +18,26 @@ def _lindblad(H, rho, c_ops):
 
 
 def _runge_kutta_generator(H, rho, tlist, c_ops, *args):
-    """Perfor an integration step using the runge kutta 4 algorithm."""
+    """
+    Perform an integration step using the Runge-Kutta 4th order algorithm.
+
+    Input:
+
+    H - the Hamiltonian of interest for the decoupling series
+
+    rho - the initial state of the system
+
+    tlist - the list of times to integrate for, this function only
+    computes one step at a time but tlist is an argument for
+    consistency with lindblad_solver function
+
+    c_ops - collapse operators
+
+    *args - extra arguments passed to the Hamiltonian.
+
+    Output:
+    State of the system at the next time step.
+    """
     H_t = H(tlist[1], *args)
     for i, t in enumerate(tlist[1:], 1):
         dt = tlist[i] - tlist[i - 1]
@@ -88,7 +107,7 @@ if __name__ == "__main__":
         return Ham * frequency
 
     rho_0 = init_qubit([1, 0, 0])
-    tlist = np.linspace(0, 100, 10)
+    tlist = np.linspace(0, 100, 1000)
 
     frequency = 0.5
     rho, expect = lindblad_solver(H,
