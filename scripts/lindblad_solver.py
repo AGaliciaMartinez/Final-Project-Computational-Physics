@@ -85,17 +85,17 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
     """
     # Allocation of arrays
     expectations = np.zeros((len(e_ops), len(tlist)))
+    e_ops_np = np.array(e_ops)
+    print(e_ops_np.shape)
 
     # Evaluate expectation values
-    for num, op in enumerate(e_ops):
-        expectations[num, 0] = np.trace(rho @ op)
+    expectations[:, 0] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
     rk_iterator = _runge_kutta_generator(H, rho, tlist, c_ops, *args)
 
     for i, rho in enumerate(rk_iterator):
         # Evaluate expectation values (TODO implement numpy like expression)
-        for num, op in enumerate(e_ops):
-            expectations[num, i + 1] = np.trace(rho @ op)
+        expectations[:, i + 1] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
     return rho, expectations
 
