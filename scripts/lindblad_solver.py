@@ -39,6 +39,8 @@ def _runge_kutta_generator(H, rho, tlist, c_ops, *args):
     State of the system at the next time step.
     """
     H_t = H(tlist[1], *args)
+    yield rho  # Iteration starts with the initial state for simplicity
+
     for i, t in enumerate(tlist[1:], 1):
         dt = tlist[i] - tlist[i - 1]
 
@@ -86,16 +88,11 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
     # Allocation of arrays
     expectations = np.zeros((len(e_ops), len(tlist)))
     e_ops_np = np.array(e_ops)
-    print(e_ops_np.shape)
-
-    # Evaluate expectation values
-    expectations[:, 0] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
     rk_iterator = _runge_kutta_generator(H, rho, tlist, c_ops, *args)
 
     for i, rho in enumerate(rk_iterator):
-        # Evaluate expectation values (TODO implement numpy like expression)
-        expectations[:, i + 1] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
+        expectations[:, i] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
     return rho, expectations
 
