@@ -14,8 +14,8 @@ def _lindblad(H, rho, c_ops):
     # TODO Change this to numpy cast rules as we did for the evaluation of the
     # operators. (implement first a test function)
     for op in c_ops:
-        lind += op @ rho @ np.conj(op.T) - 1 / 2 * (np.conj(op.T) @ op @ rho +
-                                                    rho @ np.conj(op.T) @ op)
+        lind += op @ rho @ op.conj().T - 1 / 2 * (op.conj().T @ op @ rho +
+                                                  rho @ op.conj().T @ op)
     return lind
 
 
@@ -94,16 +94,16 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
     rk_iterator = _runge_kutta_generator(H, rho, tlist, c_ops, *args)
 
     for i, rho in enumerate(rk_iterator):
-        expectations[:, i] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
+        if len(e_ops):  # Compute all the expectations if any
+            expectations[:, i] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
     return rho, expectations
 
 
 if __name__ == "__main__":
-    Ham = sz
 
     def H(t, frequency):
-        return Ham * frequency
+        return sz * frequency
 
     rho_0 = init_qubit([1, 0, 0])
     tlist = np.linspace(0, 100, 1000)
