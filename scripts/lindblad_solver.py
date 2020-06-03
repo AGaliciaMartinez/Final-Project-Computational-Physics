@@ -11,9 +11,11 @@ from utils import sx, sy, sz, si
 def _lindblad(H, rho, c_ops):
     """Return the evaluation of the Linbald operator."""
     lind = -1j * (H @ rho - rho @ H)
+    # TODO Change this to numpy cast rules as we did for the evaluation of the
+    # operators. (implement first a test function)
     for op in c_ops:
-        lind += op @ rho @ np.conj(op) - 1 / 2 * (np.conj(op) @ op @ rho +
-                                                  rho @ np.conj(op) @ op)
+        lind += op @ rho @ np.conj(op.T) - 1 / 2 * (np.conj(op.T) @ op @ rho +
+                                                    rho @ np.conj(op.T) @ op)
     return lind
 
 
