@@ -7,17 +7,18 @@ import sys
 sys.path.append('../scripts/')
 from plot_utils import set_size
 
-data = np.load('../script_output/data_dyn_decoupl3.npz')
+data = np.load('../script_output/data_dyn_decoupl0.npz')
 
 taus = data["taus"]
 proj1 = data["proj1"]
 proj2 = data["proj2"]
 
 
-plt.plot(taus, proj1)
-plt.plot(taus, proj2)
+plt.plot(taus, proj1, label='q1')
+plt.plot(taus, proj2, label='q2')
 plt.ylabel(r'$P_x$')
 plt.xlabel(r'$\tau$')
 plt.tight_layout()
+plt.legend()
 
 plt.show()

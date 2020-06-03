@@ -80,24 +80,45 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
     return np.trace(rho_last @ np.kron(sx, si))
 
 
+def analytic(tau, N, args):
+    w_tilde = np.sqrt((args[1] * np.cos(args[2] + args[0]))**2 +
+                      (args[1] * np.sin(args[2]))**2)
+    mz = (args[1] * np.cos(args[2]) + args[0]) / w_tilde
+    mx = args[1] * np.sin(args[2]) / w_tilde
+    phi = np.arccos(
+        np.cos(w_tilde * tau) * np.cos(args[0] * tau) -
+        mz * np.sin(w_tilde * tau) * np.sin(args[0] * tau))
+    term2 = ((np.power(mx, 2)) * (1 - np.cos(w_tilde * tau)) *
+             (1 - np.cos(args[0] * tau))) / (
+                 1 + np.cos(w_tilde * tau) * np.cos(args[0] * tau) -
+                 mz * np.sin(w_tilde * tau) * np.sin(args[0] * tau))
+    M = 1 - term2 * (np.sin(N * phi / 2))**2
+    Px = (M + 1) / 2
+
+    return Px
+
+
 if __name__ == '__main__':
-    steps = 500
+    steps = 25
     N = 8
     rho_0 = np.kron((si + sx) / 2, si / 2)
-    taus = np.linspace(4.00, 5.00, 300)
+    taus = np.linspace(0.00, 10.00, 10000)
 
-    args1 = [1.0, 0.01, np.pi / 4]
-    parameters1 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args1[0]), repeat(args1[1]), repeat(args1[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        results1 = list(tqdm(pool.starmap(dynamical_decoupling, parameters1)))
+    args1 = [1.0, 0.1, np.pi / 4]
+    # parameters1 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
+    #                   repeat(args1[0]), repeat(args1[1]), repeat(args1[2]))
+    # with mp.Pool(processes=mp.cpu_count()) as pool:
+    #     results1 = list(tqdm(pool.starmap(dynamical_decoupling, parameters1)))
 
-    args2 = [1.0, 0.011, np.pi / 6]
-    parameters2 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args2[0]), repeat(args2[1]), repeat(args2[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        results2 = list(tqdm(pool.starmap(dynamical_decoupling, parameters2)))
+    # args2 = [1.0, 0.11, np.pi / 6]
+    # parameters2 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
+    #                   repeat(args2[0]), repeat(args2[1]), repeat(args2[2]))
+    # with mp.Pool(processes=mp.cpu_count()) as pool:
+    #     results2 = list(tqdm(pool.starmap(dynamical_decoupling, parameters2)))
 
-    plt.plot(taus, results1)
-    plt.plot(taus, results2)
+    # plt.plot(taus, results1)
+    # plt.plot(taus, results2)
+    # for i, tu in enumerate(taus):
+    proj = analytic(taus, N, args1)
+    plt.plot(taus, proj)
     plt.show()
