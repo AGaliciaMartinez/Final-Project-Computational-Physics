@@ -29,9 +29,8 @@ def H(t, wL, wh, theta):
     """
     A = wh * np.cos(theta)
     B = wh * np.sin(theta)
-    fac = 2 * np.pi
-    return fac * (A * np.kron((si - sz) / 2, sz) + B * np.kron(
-        (si - sz) / 2, sx) + wL * np.kron((si + sz) / 2, sz))
+    return (A + wL) * np.kron((si - sz) / 2, sz / 2) + B * np.kron(
+        (si - sz) / 2, sx / 2) + wL * np.kron((si + sz) / 2, sz / 2)
 
 
 def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
@@ -84,48 +83,62 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
         np.trace(rho_last @ np.kron(si, sz))
     ]
     return exp[0], exp[1], exp[2]
+    # return np.trace(rho_last @ np.kron(sx, si))
 
 
 if __name__ == "__main__":
+    steps = 25
+    args = [1.0, 0.1, np.pi / 4]
 
-    steps = 200
-    args = [1.0, 0.01, np.pi / 4]
-    rho_0 = np.kron((si - sz) / 2, (si + sz) / 2)
-    tau = 1.2422
+    tau = 1.517
     N = np.arange(0, 33)
-    case = 0  # 0 for e- in |0> state, 1 for |1>
 
-    if case == 0:
-        rho_0 = np.kron((si + sz) / 2, (si + sz) / 2)
-    elif case == 1:
-        rho_0 = np.kron((si - sz) / 2, (si + sz) / 2)
+    rho_0 = np.kron((si + sz) / 2, (si + sz) / 2)
+    rho_1 = np.kron((si - sz) / 2, (si + sz) / 2)
 
-    parameters = zip(repeat(H), repeat(rho_0), N, repeat(tau), repeat(steps),
-                     repeat(args[0]), repeat(args[1]), repeat(args[2]))
+    parameters0 = zip(repeat(H), repeat(rho_0), N, repeat(tau), repeat(steps),
+                      repeat(args[0]), repeat(args[1]), repeat(args[2]))
     with mp.Pool(processes=mp.cpu_count()) as pool:
-        results = pool.starmap(dynamical_decoupling, parameters)
+        results0 = pool.starmap(dynamical_decoupling, parameters0)
 
     px = np.zeros(len(N))
     py = np.zeros(len(N))
     pz = np.zeros(len(N))
     for i in N - 1:
-        px[i] = results[i][0]
-        py[i] = results[i][1]
-        pz[i] = results[i][2]
+        px[i] = results0[i][0]
+        py[i] = results0[i][1]
+        pz[i] = results0[i][2]
 
-    plt.plot(N, px, label='X', color='green')
-    plt.plot(N, py, label='Y', color='red')
-    plt.plot(N, pz, label='Z', color='black')
-    plt.legend()
+    parameters1 = zip(repeat(H), repeat(rho_1), N, repeat(tau), repeat(steps),
+                      repeat(args[0]), repeat(args[1]), repeat(args[2]))
+    with mp.Pool(processes=mp.cpu_count()) as pool:
+        results1 = pool.starmap(dynamical_decoupling, parameters1)
+
+    px1 = np.zeros(len(N))
+    py1 = np.zeros(len(N))
+    pz1 = np.zeros(len(N))
+    for i in N - 1:
+        px1[i] = results1[i][0]
+        py1[i] = results1[i][1]
+        pz1[i] = results1[i][2]
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+
+    ax1.set_title('Rotation about -x axis')
+    ax1.set_ylabel('Projections')
+    ax1.plot(N, px, label='X', color='blue')
+    ax1.plot(N, py, label='Y', color='red')
+    ax1.plot(N, pz, label='Z', color='black')
+    ax1.legend()
+
+    ax2.set_title('Rotation about x axis')
+    ax2.set_ylabel('Projections')
+    ax2.plot(N, px1, label='X', color='blue')
+    ax2.plot(N, py1, label='Y', color='red')
+    ax2.plot(N, pz1, label='Z', color='black')
+    ax2.legend()
+
+    plt.ylabel('Projections')
+    plt.xlabel('Number of Dyn. Decoupling Sequences')
+
     plt.show()
-
-    # rho_0 = np.kron((si + sx) / 2, si / 2)
-    # N = 8
-    # taus = np.linspace(1.00, 2.00, 100)
-    # parameters = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-    #                  repeat(args[0]), repeat(args[1]), repeat(args[2]))
-    # with mp.Pool(processes=mp.cpu_count()) as pool:
-    #     results = pool.starmap(dynamical_decoupling, parameters)
-
-    # plt.plot(taus, results)
-    # plt.show()

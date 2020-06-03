@@ -19,7 +19,8 @@ def init_qubit(bloch_direction):
     else:
         n = bloch_direction
 
-    n = n / np.linalg.norm(n)
+    if np.linalg.norm(n) != 0:
+        n = n / np.linalg.norm(n)
     return (si + sx * n[0] + sy * n[1] + sz * n[2]) / 2
 
 
