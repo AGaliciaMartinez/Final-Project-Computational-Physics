@@ -33,17 +33,17 @@ def H(t, wL, wh, theta):
         (si - sz) / 2, sx / 2) + wL * np.kron((si + sz) / 2, sz / 2)
 
 
-def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
-    """
-    Input:
+def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
+    """Input:
     H - the Hamiltonian describing the NV and carbon interaction
 
     rho_0 - the initial density matrix of the system
 
-    N - two times the number of dynamical decoupling units to apply
+    N - the number of dynamical decoupling units to apply
 
     tau - the free evolution time in the dynamical decoupling sequence
-    described by tau - R(pi) - 2tau - R(pi) - tau pulses
+    described by tau - R(pi) - tau pulses. The rotation is around the X axis
+    for the qubit 1.
 
     steps - the number of steps in each tau evolution
 
@@ -52,41 +52,50 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
     Output:
     Returns the projection along the x axis of the eletron's state after
     N decoupling sequences.
+
     """
-    time1 = np.linspace(0, tau, steps)
-    time2 = np.linspace(tau, 3 * tau, 2 * steps)
-    time3 = np.linspace(3 * tau, 4 * tau, steps)
+    time = np.linspace(0, tau, steps)
+    time_total = np.linspace(0, 2 * N * tau, 2 * N * (steps - 1) - 1)
+
+    # TODO a more thorough check would be nice.
+    n_qubits = np.log2(rho_0.shape[0])
+
+    # Create the x rotation
+    rot = sx
+    for i in range(n_qubits):
+        rot = np.kron(rot, si)
 
     # initial density matrix
-    rho_last = rho_0
+    rho = rho_0
+    e_total = []
 
     # implement N/2 dynamical decoupling units
-    for i in range(int(N / 2)):
+    for i in range(N):
         # tau evolution
-        rho, _ = lindblad_solver(H, rho_last, time1, *args, c_ops=[], e_ops=[])
-        rho_down = np.kron(sx, si) @ rho @ np.kron(sx, si)
+        rho, e = lindblad_solver(H, rho, time, *args, c_ops=[], e_ops=e_ops)
+        if len(e_ops):
+            e_total.append(e[0:-1])
+
+        # Pi rotation
+        rho = rot @ rho @ rot
+
         # 2 tau flipped evolution
-        rho_fl, _ = lindblad_solver(H,
-                                    rho_down,
-                                    time2,
-                                    *args,
-                                    c_ops=[],
-                                    e_ops=[])
-        rho_up = np.kron(sx, si) @ rho_fl @ np.kron(sx, si)
-        # tau flipped back evolution
-        rho_flb, _ = lindblad_solver(H,
-                                     rho_up,
-                                     time3,
-                                     *args,
-                                     c_ops=[],
-                                     e_ops=[])
+        rho, e = lindblad_solver(H, rho, time, *args, c_ops=[], e_ops=e_ops)
+        if len(e_ops):
+            e_total.append(e[0:-1])
 
-        rho_last = rho_flb
+    if len(e_ops):
+        # Careful, last value not being appended.
+        e_total = np.array(e_total)
+        print(e_total.shape)
+        print(time.shape)
 
-        time1 = time1 + 4 * tau
-        time2 = time2 + 4 * tau
-        time3 = time3 + 4 * tau
-    return (np.trace(rho_last @ np.kron(sx, si)) + 1) / 2
+        e_total = np.moveaxis(e_total, 0, -1)
+        e_total.reshape((len(e_ops), -1))
+
+        return time_total, e_total
+    else:
+        return (np.trace(rho @ np.kron(sx, si)) + 1) / 2
 
 
 def analytic_dd(tau, N, args):
@@ -113,13 +122,18 @@ if __name__ == '__main__':
     args1 = [1.0, 0.1, np.pi / 4]
     parameters1 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
                       repeat(args1[0]), repeat(args1[1]), repeat(args1[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
+    with mp.Pool() as pool:
         results1 = list(tqdm(pool.starmap(dynamical_decoupling, parameters1)))
+
+        # for key, value in parameters1.items():
+        #     pool.apply_async(dynamical_decoupling, (value, ), callback=update)
+        # pool.close()
+        # pool.join()
 
     args2 = [1.0, 0.2, np.pi / 6]
     parameters2 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
                       repeat(args2[0]), repeat(args2[1]), repeat(args2[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
+    with mp.Pool() as pool:
         results2 = list(tqdm(pool.starmap(dynamical_decoupling, parameters2)))
 
     proj1 = np.array(results1)
@@ -128,7 +142,7 @@ if __name__ == '__main__':
     an_proj1 = analytic_dd(taus, N, args1)
     an_proj2 = analytic_dd(taus, N, args2)
 
-    np.savez("data_dyn_decoupl",
+    np.savez("../script_output/data_dyn_decoupl",
              proj1=proj1,
              proj2=proj2,
              an_proj1=an_proj1,

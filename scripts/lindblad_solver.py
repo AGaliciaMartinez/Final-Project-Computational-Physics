@@ -109,12 +109,13 @@ if __name__ == "__main__":
     tlist = np.linspace(0, 100, 1000)
 
     frequency = 0.5
-    rho, expect = lindblad_solver(H,
-                                  rho_0,
-                                  tlist,
-                                  frequency,
-                                  c_ops=[np.sqrt(0.05) * sz],
-                                  e_ops=[si, sx, sy, sz])
+    rho, expect = lindblad_solver(
+        H,
+        rho_0,
+        tlist,
+        frequency,  # Extra argument to H
+        c_ops=[np.sqrt(0.05) * sz],
+        e_ops=[si, sx, sy, sz])
 
     plt.plot(tlist, expect[0, :], label='I')
     plt.plot(tlist, expect[1, :], label='X')
