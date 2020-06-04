@@ -38,5 +38,4 @@ plt.ylabel(r'$P_x$')
 plt.xlabel(r'$\tau$')
 plt.tight_layout()
 plt.legend()
-
 plt.show()
