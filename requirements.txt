@@ -3,3 +3,4 @@ pytest-benchmark
 scipy
 matplotlib
 tqdm
+parmap
