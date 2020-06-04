@@ -5,8 +5,10 @@ sys.path.append('../scripts/')
 from utils import sx, sy, sz, si, init_qubit
 from lindblad_solver import lindblad_solver
 from tqdm import tqdm
-from itertools import repeat
+from itertools import repeat, product
 import multiprocessing as mp
+
+import parmap
 
 
 def H(t, wL, wh, theta):
@@ -118,21 +120,17 @@ if __name__ == '__main__':
     taus = np.linspace(9.00, 15.00, 300)
 
     args1 = [1.0, 0.1, np.pi / 4]
-    parameters1 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args1[0]), repeat(args1[1]), repeat(args1[2]))
-    with mp.Pool() as pool:
-        results1 = list(tqdm(pool.starmap(dynamical_decoupling, parameters1)))
-
-        # for key, value in parameters1.items():
-        #     pool.apply_async(dynamical_decoupling, (value, ), callback=update)
-        # pool.close()
-        # pool.join()
+    parameters1 = list(
+        product([H], [rho_0], [N], taus, [steps], [args1[0]], [args1[1]],
+                [args1[2]]))
+    print(len(parameters1))
+    results1 = parmap.starmap(dynamical_decoupling, parameters1, pm_pbar=True)
 
     args2 = [1.0, 0.2, np.pi / 6]
-    parameters2 = zip(repeat(H), repeat(rho_0), repeat(N), taus, repeat(steps),
-                      repeat(args2[0]), repeat(args2[1]), repeat(args2[2]))
-    with mp.Pool() as pool:
-        results2 = list(tqdm(pool.starmap(dynamical_decoupling, parameters2)))
+    parameters2 = list(
+        product([H], [rho_0], [N], taus, [steps], [args2[0]], [args2[1]],
+                [args2[2]]))
+    results2 = parmap.starmap(dynamical_decoupling, parameters2, pm_pbar=True)
 
     proj1 = np.array(results1)
     proj2 = np.array(results2)
