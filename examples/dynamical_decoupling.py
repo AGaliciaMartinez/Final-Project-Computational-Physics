@@ -52,17 +52,15 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
     Output:
     Returns the projection along the x axis of the eletron's state after
     N decoupling sequences.
-
     """
     time = np.linspace(0, tau, steps)
     time_total = np.linspace(0, 2 * N * tau, 2 * N * (steps - 1) - 1)
 
-    # TODO a more thorough check would be nice.
-    n_qubits = np.log2(rho_0.shape[0])
-
     # Create the x rotation
     rot = sx
-    for i in range(n_qubits):
+    # TODO a more thorough check would be nice.
+    n_qubits = int(np.log2(rho_0.shape[0]))
+    for i in range(n_qubits - 1):
         rot = np.kron(rot, si)
 
     # initial density matrix
