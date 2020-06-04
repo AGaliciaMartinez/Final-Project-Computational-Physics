@@ -62,7 +62,7 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
 
     # Create the x rotation
     rot = sx
-    for i in range(n_qubits):
+    for i in range(int(n_qubits) - 1):
         rot = np.kron(rot, si)
 
     # initial density matrix
@@ -79,7 +79,7 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
         # Pi rotation
         rho = rot @ rho @ rot
 
-        # 2 tau flipped evolution
+        # tau flipped evolution
         rho, e = lindblad_solver(H, rho, time, *args, c_ops=[], e_ops=e_ops)
         if len(e_ops):
             e_total.append(e[0:-1])
@@ -115,7 +115,7 @@ def analytic_dd(tau, N, args):
 
 if __name__ == '__main__':
     steps = 50
-    N = 32
+    N = 16
     rho_0 = np.kron(init_qubit([1, 0, 0]), init_qubit([0, 0, 0]))
     taus = np.linspace(9.00, 15.00, 300)
 
@@ -142,12 +142,12 @@ if __name__ == '__main__':
     an_proj1 = analytic_dd(taus, N, args1)
     an_proj2 = analytic_dd(taus, N, args2)
 
-    np.savez("../script_output/data_dyn_decoupl",
-             proj1=proj1,
-             proj2=proj2,
-             an_proj1=an_proj1,
-             an_proj2=an_proj2,
-             taus=taus)
+    # np.savez("../script_output/data_dyn_decoupl",
+    #          proj1=proj1,
+    #          proj2=proj2,
+    #          an_proj1=an_proj1,
+    #          an_proj2=an_proj2,
+    #          taus=taus)
 
     # plt.plot(taus, results1, label='q1 sim')
     # plt.plot(taus, results2, label='q2 sim')
