@@ -95,7 +95,8 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
 
         return time_total, e_total
     else:
-        return (np.trace(rho @ np.kron(sx, si)) + 1) / 2
+        # We usualy only require the fidelity of qubit 1 being given by
+        return (np.trace(rho @ rot) + 1) / 2
 
 
 def analytic_dd(tau, N, args):
