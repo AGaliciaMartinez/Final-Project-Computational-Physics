@@ -19,7 +19,7 @@ def set_size(width, fraction=1, fraction_height=1, subplots=(1, 1)):
             Dimensions of figure in inches
     """
     if width == 'report_column':
-        width_pt = 205
+        width_pt = 430
     elif width == 'report_full':
         width_pt = 430
     else:
