@@ -2,11 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sys
 sys.path.append('../scripts/')
-from utils import sx, sy, sz, si, init_qubit
-from lindblad_solver import lindblad_solver
-from tqdm import tqdm
-from itertools import repeat
-import multiprocessing as mp
+from utils import sx, sy, sz, si, init_qubit, pi_rotation
+from dynamical_decoupling import dynamical_decoupling
 
 
 def H(t, wL, wh, theta):
@@ -33,109 +30,59 @@ def H(t, wL, wh, theta):
         (si - sz) / 2, sx / 2) + wL * np.kron((si + sz) / 2, sz / 2)
 
 
-def dynamical_decoupling(H, rho_0, N, tau, steps, *args):
-    """
-    Input:
-    tau - the free evolution time in the dynamical decoupling sequence
-    described by tau - R(pi) - 2tau - R(pi) - tau pulses
-
-    Output:
-    Returns the projection along the x axis of the eletron's state after
-    N decoupling sequences.
-    """
-    time1 = np.linspace(0, tau, steps)
-    time2 = np.linspace(tau, 3 * tau, 2 * steps)
-    time3 = np.linspace(3 * tau, 4 * tau, steps)
-
-    # initial density matrix for ms=0
-    rho_last = rho_0
-
-    # implement N dynamical decoupling cycles
-    for i in range(N):
-        # tau evolution
-        rho, _ = lindblad_solver(H, rho_last, time1, *args, c_ops=[], e_ops=[])
-        rho_down = np.kron(sx, si) @ rho @ np.kron(sx, si)
-        # 2 tau flipped evolution
-        rho_fl, _ = lindblad_solver(H,
-                                    rho_down,
-                                    time2,
-                                    *args,
-                                    c_ops=[],
-                                    e_ops=[])
-        rho_up = np.kron(sx, si) @ rho_fl @ np.kron(sx, si)
-        # tau flipped back evolution
-        rho_flb, _ = lindblad_solver(H,
-                                     rho_up,
-                                     time3,
-                                     *args,
-                                     c_ops=[],
-                                     e_ops=[])
-
-        rho_last = rho_flb
-
-        time1 = time1 + 4 * tau
-        time2 = time2 + 4 * tau
-        time3 = time3 + 4 * tau
-
-    exp = [
-        np.trace(rho_last @ np.kron(si, sx)),
-        np.trace(rho_last @ np.kron(si, sy)),
-        np.trace(rho_last @ np.kron(si, sz))
-    ]
-    return exp[0], exp[1], exp[2]
-    # return np.trace(rho_last @ np.kron(sx, si))
-
-
 if __name__ == "__main__":
-    steps = 25
+    steps = 5
     args = [1.0, 0.1, np.pi / 4]
+    N, tau = pi_rotation(args[0], args[1], args[2])
+    e_ops = [np.kron(si, sx), np.kron(si, sy), np.kron(si, sz)]
 
-    tau = 1.517
-    N = np.arange(0, 33)
+    rho_0 = np.kron(init_qubit([0, 0, 1]), init_qubit([0, 0, 1]))
 
-    rho_0 = np.kron((si + sz) / 2, (si + sz) / 2)
-    rho_1 = np.kron((si - sz) / 2, (si + sz) / 2)
+    results1 = dynamical_decoupling(H,
+                                    rho_0,
+                                    N,
+                                    tau,
+                                    steps,
+                                    args[0],
+                                    args[1],
+                                    args[2],
+                                    e_ops=e_ops)
 
-    parameters0 = zip(repeat(H), repeat(rho_0), N, repeat(tau), repeat(steps),
-                      repeat(args[0]), repeat(args[1]), repeat(args[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        results0 = pool.starmap(dynamical_decoupling, parameters0)
+    rho_1 = np.kron(init_qubit([0, 0, -1]), init_qubit([0, 0, 1]))
+    results2 = dynamical_decoupling(H,
+                                    rho_1,
+                                    N,
+                                    tau,
+                                    steps,
+                                    args[0],
+                                    args[1],
+                                    args[2],
+                                    e_ops=e_ops)
 
-    px = np.zeros(len(N))
-    py = np.zeros(len(N))
-    pz = np.zeros(len(N))
-    for i in N - 1:
-        px[i] = results0[i][0]
-        py[i] = results0[i][1]
-        pz[i] = results0[i][2]
+    evens = np.arange(0, N, 2)
 
-    parameters1 = zip(repeat(H), repeat(rho_1), N, repeat(tau), repeat(steps),
-                      repeat(args[0]), repeat(args[1]), repeat(args[2]))
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        results1 = pool.starmap(dynamical_decoupling, parameters1)
+    px1 = np.take(results1[0], evens)
+    py1 = np.take(results1[1], evens)
+    pz1 = np.take(results1[2], evens)
 
-    px1 = np.zeros(len(N))
-    py1 = np.zeros(len(N))
-    pz1 = np.zeros(len(N))
-    for i in N - 1:
-        px1[i] = results1[i][0]
-        py1[i] = results1[i][1]
-        pz1[i] = results1[i][2]
+    px2 = np.take(results2[0], evens)
+    py2 = np.take(results2[1], evens)
+    pz2 = np.take(results2[2], evens)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
     ax1.set_title('Rotation about -x axis')
     ax1.set_ylabel('Projections')
-    ax1.plot(N, px, label='X', color='blue')
-    ax1.plot(N, py, label='Y', color='red')
-    ax1.plot(N, pz, label='Z', color='black')
+    ax1.plot(evens, px1, label='X', color='blue')
+    ax1.plot(evens, py1, label='Y', color='red')
+    ax1.plot(evens, pz1, label='Z', color='green')
     ax1.legend()
 
     ax2.set_title('Rotation about x axis')
     ax2.set_ylabel('Projections')
-    ax2.plot(N, px1, label='X', color='blue')
-    ax2.plot(N, py1, label='Y', color='red')
-    ax2.plot(N, pz1, label='Z', color='black')
+    ax2.plot(evens, px2, label='X', color='blue')
+    ax2.plot(evens, py2, label='Y', color='red')
+    ax2.plot(evens, pz2, label='Z', color='green')
     ax2.legend()
 
     plt.ylabel('Projections')

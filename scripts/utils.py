@@ -24,6 +24,23 @@ def init_qubit(bloch_direction):
     return (si + sx * n[0] + sy * n[1] + sz * n[2]) / 2
 
 
+def pi_rotation(wL, wh, theta):
+    tau = np.pi / (2 * wL + wh * np.cos(theta))
+
+    A = wh * np.cos(theta)
+    B = wh * np.sin(theta)
+    w_tilde = np.sqrt((A + wL)**2 + B**2)
+    mz = (A + wL) / w_tilde
+    mx = B / w_tilde
+    alpha = w_tilde * tau
+    beta = wL * tau
+    phi = np.arccos(mz * np.sin(alpha) * np.sin(beta) -
+                    np.cos(alpha) * np.cos(beta))
+
+    N = int(round(np.pi / np.abs(phi)))
+    return N, tau
+
+
 def normal_autocorr_generator(mu, sigma, tau, seed):
     """Returns an iterator that is used to generate an autocorrelated sequence of
     Gaussian random numbers.
