@@ -42,7 +42,7 @@ if case == 'single':
     plt.figure(1)
     plt.plot(taus, proj1)
     plt.plot(taus, proj2)
-    plt.plot(taus, an_proj1, label='Carbon 1', color='purple')
+    plt.plot(taus, an_proj1, label='Carbon 1', color='blue')
     plt.plot(taus, an_proj2, label='Carbon 2', color='green')
     plt.title('Dynamical Decoupling on 2 Isolated Carbon-13 Atoms')
     plt.ylabel(r'$P_x$')

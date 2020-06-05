@@ -27,10 +27,10 @@ def analytic_dd(tau, N, args):
 
 
 if __name__ == '__main__':
-    steps = 50
+    steps = 25
     N = 32
     rho_0 = np.kron(init_qubit([1, 0, 0]), init_qubit([0, 0, 0]))
-    taus = np.linspace(9.00, 15.00, 500)
+    taus = np.linspace(9.00, 15.00, 100)
 
     args1 = [1.0, 0.1, np.pi / 4]
 

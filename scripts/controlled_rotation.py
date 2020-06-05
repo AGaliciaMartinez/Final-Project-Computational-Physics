@@ -25,7 +25,7 @@ mpl.rcParams.update(nice_fonts)
 
 if __name__ == "__main__":
     steps = 5
-    args = [1.0, 0.1, np.pi / 4]
+    args = [1.0, 0.01, np.pi / 4]
     N, tau = pi_rotation(args[0], args[1], args[2])
     e_ops = [np.kron(si, sx), np.kron(si, sy), np.kron(si, sz)]
 
