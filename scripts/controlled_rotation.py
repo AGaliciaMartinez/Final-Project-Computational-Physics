@@ -4,30 +4,7 @@ import sys
 sys.path.append('../scripts/')
 from utils import sx, sy, sz, si, init_qubit, pi_rotation
 from dynamical_decoupling import dynamical_decoupling
-
-
-def H(t, wL, wh, theta):
-    """
-    Definition of the Hamiltonian for a single Carbon near a
-    Nitrogen-Vacancy centre in diamond.
-
-    Input:
-    wL - the Larmor frequency of precession, controlled by the
-    externally applied B field
-
-    wh - the hyperfine coupling term describing the strength of
-    spin-spin interaction between the Carbon and the NV
-
-    theta - the angle between the applied B field and the vector
-    pointing from the NV to the Carbon atom
-
-    Output:
-    The 4x4 Hamiltonian of the joint spin system.
-    """
-    A = wh * np.cos(theta)
-    B = wh * np.sin(theta)
-    return (A + wL) * np.kron((si - sz) / 2, sz / 2) + B * np.kron(
-        (si - sz) / 2, sx / 2) + wL * np.kron((si + sz) / 2, sz / 2)
+from hamiltonians import single_carbon_H
 
 
 if __name__ == "__main__":
@@ -38,7 +15,7 @@ if __name__ == "__main__":
 
     rho_0 = np.kron(init_qubit([0, 0, 1]), init_qubit([0, 0, 1]))
 
-    results1 = dynamical_decoupling(H,
+    results1 = dynamical_decoupling(single_carbon_H,
                                     rho_0,
                                     N,
                                     tau,
@@ -49,7 +26,7 @@ if __name__ == "__main__":
                                     e_ops=e_ops)
 
     rho_1 = np.kron(init_qubit([0, 0, -1]), init_qubit([0, 0, 1]))
-    results2 = dynamical_decoupling(H,
+    results2 = dynamical_decoupling(single_carbon_H,
                                     rho_1,
                                     N,
                                     tau,

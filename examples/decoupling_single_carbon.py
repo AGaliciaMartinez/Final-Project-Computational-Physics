@@ -27,10 +27,10 @@ def analytic_dd(tau, N, args):
 
 
 if __name__ == '__main__':
-    steps = 50
+    steps = 25
     N = 32
     rho_0 = np.kron(init_qubit([1, 0, 0]), init_qubit([0, 0, 0]))
-    taus = np.linspace(9.00, 15.00, 300)
+    taus = np.linspace(9.00, 15.00, 10)
 
     args1 = [1.0, 0.1, np.pi / 4]
 
@@ -54,13 +54,13 @@ if __name__ == '__main__':
     an_proj1 = analytic_dd(taus, N, args1)
     an_proj2 = analytic_dd(taus, N, args2)
 
-    np.savez("../script_output/data_dyn_decoupl_single_N_" + str(N) +
-             "_steps_" + str(steps),
-             proj1=results1,
-             proj2=results2,
-             an_proj1=an_proj1,
-             an_proj2=an_proj2,
-             taus=taus)
+    # np.savez("../script_output/data_dyn_decoupl_single_N_" + str(N) +
+    #          "_steps_" + str(steps),
+    #          proj1=results1,
+    #          proj2=results2,
+    #          an_proj1=an_proj1,
+    #          an_proj2=an_proj2,
+    #          taus=taus)
 
     plt.plot(taus, results1, label='q1 sim')
     plt.plot(taus, results2, label='q2 sim')
