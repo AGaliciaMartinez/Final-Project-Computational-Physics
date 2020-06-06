@@ -59,6 +59,7 @@ def dynamical_decoupling(H, rho_0, N, tau, steps, *args, e_ops=[]):
         e_total.reshape((len(e_ops), -1))
 
         # return time_total, e_total
-        return e_total
+        return time_total, e_total
     else:
-        return (np.trace(rho @ np.kron(sx, si)) + 1) / 2
+        # return (np.trace(rho @ rot) + 1) / 2
+        return rho

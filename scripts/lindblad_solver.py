@@ -97,7 +97,7 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
         if len(e_ops):  # Compute all the expectations if any
             expectations[:, i] = np.trace(rho @ e_ops_np, axis1=1, axis2=2)
 
-    return rho, expectations
+            return rho, expectations
 
 
 if __name__ == "__main__":

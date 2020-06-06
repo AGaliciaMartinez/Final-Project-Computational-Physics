@@ -1,63 +1,56 @@
 import numpy as np
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 import sys
 sys.path.append('../scripts/')
+from plot_utils import set_size
 from utils import sx, sy, sz, si, init_qubit, pi_rotation
 from dynamical_decoupling import dynamical_decoupling
+from hamiltonians import single_carbon_H
 
+nice_fonts = {
+    # Use LaTeX to write all text
+    "text.usetex": True,
+    "font.family": "serif",
+    # Use 10pt font in plots, to match 10pt font in document
+    "axes.labelsize": 10,
+    "font.size": 10,
+    # Make the legend/label fonts a little smaller
+    "legend.fontsize": 8,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+}
 
-def H(t, wL, wh, theta):
-    """
-    Definition of the Hamiltonian for a single Carbon near a
-    Nitrogen-Vacancy centre in diamond.
-
-    Input:
-    wL - the Larmor frequency of precession, controlled by the
-    externally applied B field
-
-    wh - the hyperfine coupling term describing the strength of
-    spin-spin interaction between the Carbon and the NV
-
-    theta - the angle between the applied B field and the vector
-    pointing from the NV to the Carbon atom
-
-    Output:
-    The 4x4 Hamiltonian of the joint spin system.
-    """
-    A = wh * np.cos(theta)
-    B = wh * np.sin(theta)
-    return (A + wL) * np.kron((si - sz) / 2, sz / 2) + B * np.kron(
-        (si - sz) / 2, sx / 2) + wL * np.kron((si + sz) / 2, sz / 2)
-
+mpl.rcParams.update(nice_fonts)
 
 if __name__ == "__main__":
     steps = 5
-    args = [1.0, 0.1, np.pi / 4]
+    args = [1.0, 0.01, np.pi / 4]
     N, tau = pi_rotation(args[0], args[1], args[2])
     e_ops = [np.kron(si, sx), np.kron(si, sy), np.kron(si, sz)]
 
     rho_0 = np.kron(init_qubit([0, 0, 1]), init_qubit([0, 0, 1]))
 
-    results1 = dynamical_decoupling(H,
-                                    rho_0,
-                                    N,
-                                    tau,
-                                    steps,
-                                    args[0],
-                                    args[1],
-                                    args[2],
-                                    e_ops=e_ops)
+    _, results1 = dynamical_decoupling(single_carbon_H,
+                                       rho_0,
+                                       N,
+                                       tau,
+                                       steps,
+                                       args[0],
+                                       args[1],
+                                       args[2],
+                                       e_ops=e_ops)
 
     rho_1 = np.kron(init_qubit([0, 0, -1]), init_qubit([0, 0, 1]))
-    results2 = dynamical_decoupling(H,
-                                    rho_1,
-                                    N,
-                                    tau,
-                                    steps,
-                                    args[0],
-                                    args[1],
-                                    args[2],
-                                    e_ops=e_ops)
+    _, results2 = dynamical_decoupling(single_carbon_H,
+                                       rho_1,
+                                       N,
+                                       tau,
+                                       steps,
+                                       args[0],
+                                       args[1],
+                                       args[2],
+                                       e_ops=e_ops)
 
     evens = np.arange(0, N, 2)
 
@@ -69,8 +62,9 @@ if __name__ == "__main__":
     py2 = np.take(results2[1], evens)
     pz2 = np.take(results2[2], evens)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(width='report_full'))
 
+    plt.figure(1)
     ax1.set_title('Rotation about -x axis')
     ax1.set_ylabel('Projections')
     ax1.plot(evens, px1, label='X', color='blue')
