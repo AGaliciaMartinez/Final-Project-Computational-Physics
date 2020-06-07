@@ -31,26 +31,26 @@ if __name__ == "__main__":
 
     rho_0 = np.kron(init_qubit([0, 0, 1]), init_qubit([0, 0, 1]))
 
-    _, results1 = dynamical_decoupling(single_carbon_H,
-                                       rho_0,
-                                       N,
-                                       tau,
-                                       steps,
-                                       args[0],
-                                       args[1],
-                                       args[2],
-                                       e_ops=e_ops)
+    _, _, results1 = dynamical_decoupling(single_carbon_H,
+                                          rho_0,
+                                          N,
+                                          tau,
+                                          steps,
+                                          args[0],
+                                          args[1],
+                                          args[2],
+                                          e_ops=e_ops)
 
     rho_1 = np.kron(init_qubit([0, 0, -1]), init_qubit([0, 0, 1]))
-    _, results2 = dynamical_decoupling(single_carbon_H,
-                                       rho_1,
-                                       N,
-                                       tau,
-                                       steps,
-                                       args[0],
-                                       args[1],
-                                       args[2],
-                                       e_ops=e_ops)
+    _, _, results2 = dynamical_decoupling(single_carbon_H,
+                                          rho_1,
+                                          N,
+                                          tau,
+                                          steps,
+                                          args[0],
+                                          args[1],
+                                          args[2],
+                                          e_ops=e_ops)
 
     evens = np.arange(0, N, 2)
 
