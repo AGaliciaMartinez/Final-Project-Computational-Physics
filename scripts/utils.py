@@ -38,7 +38,7 @@ def pi_rotation(wL, wh, theta):
                     np.cos(alpha) * np.cos(beta))
 
     N = int(round(np.pi / np.abs(phi)))
-    return N, tau
+    return N, tau, phi
 
 
 def normal_autocorr_generator(mu, sigma, tau, seed):
