@@ -43,8 +43,8 @@ for i, n in enumerate(N):
     fit_mean, fit_std = curve_fit(fidelity, time, mean, p0=(1, 300, 3))
     fit_err = np.sqrt(np.diag(fit_std))
 
-    plt.errorbar(time, mean, std, label=f'N={n}', color=colors[i])
-    plt.plot(time, fidelity(time, *fit_mean), '--', color=colors[i])
+    plt.errorbar(time, mean, std, fmt='.', label=f'N={n}', color=colors[i])
+    plt.plot(time, fidelity(time, *fit_mean), color=colors[i])
 
     A, T_2, n_fit = fit_mean
 
@@ -77,8 +77,8 @@ for i, n in enumerate(N_1):
     fit_mean, fit_std = curve_fit(fidelity, time, mean, p0=(1, 300, 3))
     fit_err = np.sqrt(np.diag(fit_std))
 
-    plt.errorbar(time, mean, std, label=f'N={n}', color=colors[i])
-    plt.plot(time, fidelity(time, *fit_mean), '--', color=colors[i])
+    plt.errorbar(time, mean, std, fmt='', label=f'N={n}', color=colors[i])
+    plt.plot(time, fidelity(time, *fit_mean), color=colors[i])
 
     A, T_2, n_fit = fit_mean
 
@@ -88,7 +88,7 @@ for i, n in enumerate(N_1):
     print(f'n={n_fit} pm {fit_err[2]}')
     print('')
 
-plt.title('Dynamical Decoupling on NV-centre')
+plt.title('Spin Echo on NV-centre')
 plt.ylabel(r'$P_x$')
 plt.xlabel(r'$t = 2\tau$')
 plt.xscale('log')
@@ -109,14 +109,16 @@ print(f'A = {fit_mean[0]} pm {fit_err[0]}')
 print(f'exponen = {fit_mean[1]} pm {fit_err[1]}')
 
 plt.figure(3, figsize=(5, 3))
-plt.errorbar(N, Ts_mean, Ts_std)
-plt.plot(N, f(N, *fit_mean))
+plt.errorbar(N, Ts_mean, Ts_std, fmt='.', label='Simulation')
+plt.plot(N, f(N, *fit_mean), label='Fit')
 plt.title('Scaling of $T_2$ with Dynamical Decoupling')
 plt.ylabel(r'$T_2$')
 plt.xlabel(r'$N$')
 plt.xscale('log')
 plt.yscale('log')
+plt.legend()
 plt.tight_layout()
+
 plt.savefig('../presentation/images/T_2_NV_1.svg')
 
 np.savez('../script_output/nv_deco_T2.npz', T2_mean=Ts_mean, T2_std=Ts_std)
