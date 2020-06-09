@@ -2,11 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from utils import si, sx, sy, sz, init_qubit
 
-sigmax = np.array([[0, 1], [1, 0]], dtype=complex)
-sigmay = np.array([[0, -1j], [1j, 0]], dtype=complex)
-sigmaz = np.array([[1, 0], [0, -1]], dtype=complex)
-from utils import sx, sy, sz, si
-
 
 def _lindblad(H, rho, c_ops):
     """Return the evaluation of the Linbald operator."""
@@ -14,8 +9,8 @@ def _lindblad(H, rho, c_ops):
     # TODO Change this to numpy cast rules as we did for the evaluation of the
     # operators. (implement first a test function)
     for op in c_ops:
-        lind += op @ rho @ op.conj().T - 1 / 2 * (op.conj().T @ op @ rho +
-                                                  rho @ op.conj().T @ op)
+        lind += op @ rho @ op.conj() - 1 / 2 * (op.conj() @ op @ rho +
+                                                rho @ op.conj() @ op)
     return lind
 
 
@@ -84,7 +79,8 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
 
     rho_f - the final density matrix of the system
 
-    expectations - the expectation values at each time step
+    expectations - the expectation values at each time step. Size =
+    (len(e_ops), len(tlist))
 
     """
     # Allocation of arrays
@@ -103,23 +99,39 @@ def lindblad_solver(H, rho, tlist, *args, c_ops=[], e_ops=[]):
 if __name__ == "__main__":
 
     def H(t, frequency):
-        return sz * frequency
+        return sz * frequency / 2
 
     rho_0 = init_qubit([1, 0, 0])
-    tlist = np.linspace(0, 100, 1000)
+    tlist = np.linspace(0, 3.2, 1000)
 
-    frequency = 0.5
+    frequency = 1 * 2 * np.pi
     rho, expect = lindblad_solver(
         H,
         rho_0,
         tlist,
         frequency,  # Extra argument to H
-        c_ops=[np.sqrt(0.05) * sz],
+        c_ops=[np.sqrt(0.5) * sz],
         e_ops=[si, sx, sy, sz])
+
+    rho = sx @ rho @ sx
+
+    rho, expect_2 = lindblad_solver(
+        H,
+        rho,
+        tlist,
+        frequency,  # Extra argument to H
+        c_ops=[np.sqrt(0.5) * sz],
+        e_ops=[si, sx, sy, sz])
+
+    print(expect.shape, expect_2.shape)
+
+    expect = np.concatenate((expect, expect_2), axis=1)
+    tlist = np.linspace(0, 6.4, 2000)
 
     plt.plot(tlist, expect[0, :], label='I')
     plt.plot(tlist, expect[1, :], label='X')
     plt.plot(tlist, expect[2, :], label='Y')
     plt.plot(tlist, expect[3, :], label='Z')
+    plt.plot(tlist, np.exp(-tlist))
     plt.legend()
     plt.show()

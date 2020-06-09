@@ -11,7 +11,7 @@ def test_only_hamiltonian_no_t():
     H = lambda t: sz
     # Start in |+> state
     rho_0 = init_qubit([1, 0, 0])
-    tlist = np.linspace(0, 10, 100)
+    tlist = np.linspace(0, 10, 1000)
 
     rho, expect = lindblad_solver(H, rho_0, tlist, e_ops=[si, sx, sy, sz])
 
