@@ -12,11 +12,11 @@ nice_fonts = {
     "font.family": "serif",
     # Use 10pt font in plots, to match 10pt font in document
     "axes.labelsize": 14,
-    "font.size": 14,
+    "font.size": 16,
     # Make the legend/label fonts a little smaller
-    "legend.fontsize": 12,
-    "xtick.labelsize": 12,
-    "ytick.labelsize": 12,
+    "legend.fontsize": 14,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
 }
 
 mpl.rcParams.update(nice_fonts)
@@ -54,11 +54,31 @@ def fitter(x, T, n, a):
     return (0.5 * np.exp(-np.power(x / T, n))) * a + 0.5
 
 
-popt1, pcov1 = curve_fit(fitter, time1, exp_mean1, p0=(750, 3, 1), sigma=exp_std1)
-popt2, pcov2 = curve_fit(fitter, time2, exp_mean2, p0=(750, 3, 1), sigma=exp_std2)
-popt4, pcov4 = curve_fit(fitter, time4, exp_mean4, p0=(750, 3, 1), sigma=exp_std4)
-popt8, pcov8 = curve_fit(fitter, time8, exp_mean8, p0=(750, 3, 1), sigma=exp_std8)
-popt16, pcov16 = curve_fit(fitter, time16, exp_mean16, p0=(750, 3, 1), sigma=exp_std16)
+popt1, pcov1 = curve_fit(fitter,
+                         time1,
+                         exp_mean1,
+                         p0=(750, 3, 1),
+                         sigma=exp_std1)
+popt2, pcov2 = curve_fit(fitter,
+                         time2,
+                         exp_mean2,
+                         p0=(750, 3, 1),
+                         sigma=exp_std2)
+popt4, pcov4 = curve_fit(fitter,
+                         time4,
+                         exp_mean4,
+                         p0=(750, 3, 1),
+                         sigma=exp_std4)
+popt8, pcov8 = curve_fit(fitter,
+                         time8,
+                         exp_mean8,
+                         p0=(750, 3, 1),
+                         sigma=exp_std8)
+popt16, pcov16 = curve_fit(fitter,
+                           time16,
+                           exp_mean16,
+                           p0=(750, 3, 1),
+                           sigma=exp_std16)
 print(popt2[0])
 print(popt4[0])
 print(popt8[0])
@@ -85,20 +105,32 @@ plt.xlim(40, 6000)
 plt.legend()
 plt.show()
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 4))
 N = [2, 4, 8, 16]
 Ts = [popt2[0], popt4[0], popt8[0], popt16[0]]
-Ts_err = [np.sqrt(pcov2[0, 0]), np.sqrt(pcov4[0, 0]), np.sqrt(pcov8[0, 0]), np.sqrt(pcov16[0, 0])]
+Ts_err = [
+    np.sqrt(pcov2[0, 0]),
+    np.sqrt(pcov4[0, 0]),
+    np.sqrt(pcov8[0, 0]),
+    np.sqrt(pcov16[0, 0])
+]
+
+
+def scaling(N, frac, a):
+    return a * N**frac
+
+
+popt_T, pcov_T = curve_fit(scaling, N, Ts, p0=(2 / 3, 100), sigma=Ts_err)
+print(popt_T[0])
+print(np.sqrt(pcov_T[0]))
+
+Ns = np.linspace(1.01, 20, 10)
+fig, ax = plt.subplots(1, 1, figsize=(7, 3))
 plt.errorbar(N, Ts, Ts_err)
+plt.plot(Ns, scaling(Ns, popt_T[0], popt_T[1]), 'r--')
 plt.title('Improved Protection through Decoupling')
 plt.ylabel(r'Decoherence Time ($T_2$)')
 plt.xlabel('Number of Decoupling Sequences Applied')
 plt.xscale('log')
 plt.yscale('log')
+plt.tight_layout()
 plt.show()
-
-def scaling(N, frac, a):
-    return a * N**frac
-
-popt_T, pcov_T = curve_fit(scaling, N, Ts, p0=(2/3,100), sigma=Ts_err)
-print(popt_T[0])
