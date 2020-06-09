@@ -54,25 +54,27 @@ def fitter(x, T, n, a):
     return (0.5 * np.exp(-np.power(x / T, n))) * a + 0.5
 
 
-popt1, pcov1 = curve_fit(fitter, time1, exp_mean1, p0=(750, 3, 1))
-popt2, pcov2 = curve_fit(fitter, time2, exp_mean2, p0=(750, 3, 1))
-popt4, pcov4 = curve_fit(fitter, time4, exp_mean4, p0=(750, 3, 1))
-popt8, pcov8 = curve_fit(fitter, time8, exp_mean8, p0=(750, 3, 1))
-popt16, pcov16 = curve_fit(fitter, time16, exp_mean16, p0=(750, 3, 1))
+popt1, pcov1 = curve_fit(fitter, time1, exp_mean1, p0=(750, 3, 1), sigma=exp_std1)
+popt2, pcov2 = curve_fit(fitter, time2, exp_mean2, p0=(750, 3, 1), sigma=exp_std2)
+popt4, pcov4 = curve_fit(fitter, time4, exp_mean4, p0=(750, 3, 1), sigma=exp_std4)
+popt8, pcov8 = curve_fit(fitter, time8, exp_mean8, p0=(750, 3, 1), sigma=exp_std8)
+popt16, pcov16 = curve_fit(fitter, time16, exp_mean16, p0=(750, 3, 1), sigma=exp_std16)
 print(popt2[0])
-print(pcov2[0, 0])
+print(popt4[0])
+print(popt8[0])
+print(popt16[0])
 
 times = np.logspace(0, 4, 100000)
 fig, ax = plt.subplots(1, 1, figsize=set_size(width='report_full'))
 
 # plt.errorbar(time1, exp_mean1, exp_std1, label='N=1', color='black')
 # plt.plot(times, fitter(times, *popt1), '--', color='black')
-plt.errorbar(time2, exp_mean2, exp_std2, label='N=2', color='green')
-plt.plot(times, fitter(times, *popt2), 'g--')
+plt.errorbar(time2, exp_mean2, exp_std2, label='N=2', color='orange')
+plt.plot(times, fitter(times, *popt2), '--', color='orange')
 plt.errorbar(time4, exp_mean4, exp_std4, label='N=4', color='blue')
 plt.plot(times, fitter(times, *popt4), 'b--')
-plt.errorbar(time8, exp_mean8, exp_std8, label='N=8', color='orange')
-plt.plot(times, fitter(times, *popt8), '--', color='orange')
+plt.errorbar(time8, exp_mean8, exp_std8, label='N=8', color='green')
+plt.plot(times, fitter(times, *popt8), '--', color='green')
 plt.errorbar(time16, exp_mean16, exp_std16, label='N=16', color='red')
 plt.plot(times, fitter(times, *popt16), 'r--')
 plt.title('Dynamical Decoupling of Carbon atoms')
@@ -86,9 +88,17 @@ plt.show()
 fig, ax = plt.subplots(1, 1, figsize=(10, 4))
 N = [2, 4, 8, 16]
 Ts = [popt2[0], popt4[0], popt8[0], popt16[0]]
-Ts_err = [pcov2[0, 0], pcov4[0, 0], pcov8[0, 0], pcov16[0, 0]]
+Ts_err = [np.sqrt(pcov2[0, 0]), np.sqrt(pcov4[0, 0]), np.sqrt(pcov8[0, 0]), np.sqrt(pcov16[0, 0])]
 plt.errorbar(N, Ts, Ts_err)
 plt.title('Improved Protection through Decoupling')
 plt.ylabel(r'Decoherence Time ($T_2$)')
 plt.xlabel('Number of Decoupling Sequences Applied')
+plt.xscale('log')
+plt.yscale('log')
 plt.show()
+
+def scaling(N, frac, a):
+    return a * N**frac
+
+popt_T, pcov_T = curve_fit(scaling, N, Ts, p0=(2/3,100), sigma=Ts_err)
+print(popt_T[0])
