@@ -13,12 +13,12 @@ nice_fonts = {
     "text.usetex": True,
     "font.family": "serif",
     # Use 10pt font in plots, to match 10pt font in document
-    "axes.labelsize": 10,
-    "font.size": 10,
+    "axes.labelsize": 14,
+    "font.size": 16,
     # Make the legend/label fonts a little smaller
-    "legend.fontsize": 8,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
+    "legend.fontsize": 14,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
 }
 
 mpl.rcParams.update(nice_fonts)
