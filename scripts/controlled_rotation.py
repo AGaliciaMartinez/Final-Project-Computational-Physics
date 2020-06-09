@@ -25,8 +25,8 @@ mpl.rcParams.update(nice_fonts)
 
 if __name__ == "__main__":
     steps = 5
-    args = [1.0, 0.01, np.pi / 4]
-    N, tau = pi_rotation(args[0], args[1], args[2])
+    args = [1.0, 0.1, np.pi / 4]
+    N, tau, phi = pi_rotation(args[0], args[1], args[2])
     e_ops = [np.kron(si, sx), np.kron(si, sy), np.kron(si, sz)]
 
     rho_0 = np.kron(init_qubit([0, 0, 1]), init_qubit([0, 0, 1]))
@@ -62,17 +62,20 @@ if __name__ == "__main__":
     py2 = np.take(results2[1], evens)
     pz2 = np.take(results2[2], evens)
 
+    print(pz1[-1])
+    print(pz2[-1])
+
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(width='report_full'))
 
     plt.figure(1)
-    ax1.set_title('Rotation about -x axis')
+    ax1.set_title('Rotation about -x axis (NV in +1 state)')
     ax1.set_ylabel('Projections')
     ax1.plot(evens, px1, label='X', color='blue')
     ax1.plot(evens, py1, label='Y', color='red')
     ax1.plot(evens, pz1, label='Z', color='green')
     ax1.legend()
 
-    ax2.set_title('Rotation about x axis')
+    ax2.set_title('Rotation about x axis (NV in -1 state)')
     ax2.set_ylabel('Projections')
     ax2.plot(evens, px2, label='X', color='blue')
     ax2.plot(evens, py2, label='Y', color='red')
