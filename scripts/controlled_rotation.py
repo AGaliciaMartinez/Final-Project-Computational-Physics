@@ -68,14 +68,14 @@ if __name__ == "__main__":
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=set_size(width='report_full'))
 
     plt.figure(1)
-    ax1.set_title('Rotation about -x axis (NV in +1 state)')
+    ax1.set_title(r'Rotation of Carbon with NV in $|0\rangle$ state')
     ax1.set_ylabel('Projections')
     ax1.plot(evens, px1, label='X', color='blue')
     ax1.plot(evens, py1, label='Y', color='red')
     ax1.plot(evens, pz1, label='Z', color='green')
     ax1.legend()
 
-    ax2.set_title('Rotation about x axis (NV in -1 state)')
+    ax2.set_title(r'Rotation of Carbon with NV in $|1\rangle$ state')
     ax2.set_ylabel('Projections')
     ax2.plot(evens, px2, label='X', color='blue')
     ax2.plot(evens, py2, label='Y', color='red')
