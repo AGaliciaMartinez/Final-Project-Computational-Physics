@@ -77,7 +77,7 @@ for i, n in enumerate(N_1):
     fit_mean, fit_std = curve_fit(fidelity, time, mean, p0=(1, 300, 3))
     fit_err = np.sqrt(np.diag(fit_std))
 
-    plt.errorbar(time, mean, std, fmt='', label=f'N={n}', color=colors[i])
+    plt.errorbar(time, mean, std, fmt='.', label=f'N={n}', color=colors[i])
     plt.plot(time, fidelity(time, *fit_mean), color=colors[i])
 
     A, T_2, n_fit = fit_mean
@@ -111,6 +111,7 @@ print(f'exponen = {fit_mean[1]} pm {fit_err[1]}')
 plt.figure(3, figsize=(5, 3))
 plt.errorbar(N, Ts_mean, Ts_std, fmt='.', label='Simulation')
 plt.plot(N, f(N, *fit_mean), label='Fit')
+plt.plot(N, f(np.array(N), 782, 2 / 3), label='Theory')
 plt.title('Scaling of $T_2$ with Dynamical Decoupling')
 plt.ylabel(r'$T_2$')
 plt.xlabel(r'$N$')
