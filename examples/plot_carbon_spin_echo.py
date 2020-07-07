@@ -11,12 +11,12 @@ nice_fonts = {
     "text.usetex": True,
     "font.family": "serif",
     # Use 10pt font in plots, to match 10pt font in document
-    "axes.labelsize": 14,
-    "font.size": 16,
+    "axes.labelsize": 12,
+    "font.size": 14,
     # Make the legend/label fonts a little smaller
-    "legend.fontsize": 14,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
+    "legend.fontsize": 12,
+    "xtick.labelsize": 12,
+    "ytick.labelsize": 12,
 }
 
 mpl.rcParams.update(nice_fonts)
@@ -85,24 +85,50 @@ print(popt8[0])
 print(popt16[0])
 
 times = np.logspace(0, 4, 100000)
-fig, ax = plt.subplots(1, 1, figsize=set_size(width='report_full'))
+fig, ax = plt.subplots(1, 1, figsize=(6.75 * 0.8, 6.75 * 0.8 / 1.685))
 
 # plt.errorbar(time1, exp_mean1, exp_std1, label='N=1', color='black')
 # plt.plot(times, fitter(times, *popt1), '--', color='black')
-plt.errorbar(time2, exp_mean2, exp_std2, label='N=2', color='orange', fmt='.')
-plt.plot(times, fitter(times, *popt2), '-', color='orange')
-plt.errorbar(time4, exp_mean4, exp_std4, label='N=4', color='blue', fmt='.')
-plt.plot(times, fitter(times, *popt4), 'b-')
-plt.errorbar(time8, exp_mean8, exp_std8, label='N=8', color='green', fmt='.')
-plt.plot(times, fitter(times, *popt8), '-', color='green')
-plt.errorbar(time16, exp_mean16, exp_std16, label='N=16', color='red', fmt='.')
-plt.plot(times, fitter(times, *popt16), 'r-')
-plt.title('Dynamical Decoupling of Carbon atoms')
+plt.errorbar(time2,
+             exp_mean2,
+             exp_std2,
+             label='$N=2$',
+             color='orange',
+             fmt='.',
+             markersize=4)
+plt.plot(times, fitter(times, *popt2), '-', color='orange', linewidth=1)
+plt.errorbar(time4,
+             exp_mean4,
+             exp_std4,
+             label='$N=4$',
+             color='blue',
+             fmt='.',
+             markersize=4)
+plt.plot(times, fitter(times, *popt4), 'b-', linewidth=1)
+plt.errorbar(time8,
+             exp_mean8,
+             exp_std8,
+             label='$N=8$',
+             color='green',
+             fmt='.',
+             markersize=4)
+plt.plot(times, fitter(times, *popt8), '-', color='green', linewidth=1)
+plt.errorbar(time16,
+             exp_mean16,
+             exp_std16,
+             label='$N=16$',
+             color='red',
+             fmt='.',
+             markersize=4)
+plt.plot(times, fitter(times, *popt16), 'r-', linewidth=1)
+plt.title('Dynamical Decoupling of Carbon Atom')
 plt.ylabel('Projection on x-axis')
-plt.xlabel(r'$\tau$')
+plt.xlabel(r'Total evolution time (arbitrary units)')
 plt.xscale('log')
 plt.xlim(40, 6000)
+plt.tight_layout()
 plt.legend()
+plt.savefig('../script_output/dyn_decoupl_carbons.svg')
 plt.show()
 
 N = [2, 4, 8, 16]
@@ -124,13 +150,16 @@ print(popt_T[0])
 print(np.sqrt(pcov_T[0]))
 
 Ns = np.linspace(1.01, 20, 10)
-fig, ax = plt.subplots(1, 1, figsize=(7, 3))
-plt.errorbar(N, Ts, Ts_err)
-plt.plot(Ns, scaling(Ns, popt_T[0], popt_T[1]), 'r--')
-plt.title('Improved Protection through Decoupling')
-plt.ylabel(r'Decoherence Time ($T_{1/e}$)')
-plt.xlabel('Number of Decoupling Sequences Applied')
+fig, ax = plt.subplots(1, 1, figsize=(6.75 * 1 / 2, 3))
+# The 10e3 is to avoid it appearing at the axis
+plt.errorbar(N, Ts, Ts_err, fmt='.', label='Simulation')
+print(popt_T[0])
+plt.plot(Ns, scaling(Ns, popt_T[0], popt_T[1]), 'orange', label='Fit')
+plt.title('Decoherence Time')
+plt.ylabel(r'$T_{1/e} / 10^3$')
+plt.xlabel('N')
 plt.xscale('log')
 plt.yscale('log')
+plt.legend()
 plt.tight_layout()
 plt.show()

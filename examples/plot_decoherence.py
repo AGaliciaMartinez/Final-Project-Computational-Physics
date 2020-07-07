@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from tqdm import tqdm
+from tqdm import trange
 import sys
 sys.path.append('../scripts/')
 
 from utils import normal_autocorr_generator
+from correlated_random import *
 
 nice_fonts = {
     # Use LaTeX to write all text
@@ -23,6 +25,8 @@ nice_fonts = {
 mpl.rcParams.update(nice_fonts)
 
 dt = 1.4 / 5
+sigma = 0.05
+tc = 100000
 dw = normal_autocorr_generator(0, 0.05, 100000 / dt, 1)
 t = np.arange(0, 1000, dt)
 
@@ -35,4 +39,22 @@ plt.xlabel('t')
 plt.title('Correlated noise employed in the simulations.')
 plt.tight_layout()
 plt.savefig('../presentation/images/noise_figure.svg')
-# plt.show()
+
+cor_list = []
+tc_list = []
+print(len(t))
+for i in trange(100):
+    dw_it = normal_autocorr_generator(0, 0.05, 10000, i)
+    dw = [next(dw_it) for i in t]
+    cor = auto_correlation(np.array(dw))
+    cor_list.append(cor)
+    tc_list.append(correlation_time(dw))
+
+print(np.array(tc_list).mean())
+cor = np.array(cor_list).mean(axis=0)
+
+plt.figure(2)
+plt.plot(t, cor)
+# plt.plot(t, sigma**2 * np.exp(-t / tc))
+
+plt.show()
