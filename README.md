@@ -1,23 +1,9 @@
-# Project 3
+# Final project for the computational physics course in Delft University of Technology.
+By [Nicholas Zutt]() and [Asier Galicia](https://github.com/AGaliciaMartinez).
 
-For the final project of Computational Physics we encourage you to define your
-own project!
+During the last project project in the course of computational physics in Delft University of Technology we implemented the [Runge Kutta](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods) algorithm to explore the dynamics of a Nitrogen Vacancy centre and its surrounding C13. We explored how dynamical decoupling techniques[1] can improve the coherence of the system when it suffers time correlated noise in the Magnetic field. Our goal was to obtain a qualitative agreement between simulations and the experiments shown in [1]. The main result we obtain in the simulations can be seen in the following figure,
+![](presentation/images/key_image_blog.png) 
+where we plot the polarization of the nuclear spin along the X direcntion and the sequence employed in the simulation. Here, N is the number of decouplings sequences emplyed to protect the nuclear spin. It should be noted that the rotations for the nuclear spin where obtained by doing a dynamical decoupling sequence, this time on the *electron spin*, which when chosen the appropiate interpulse delay, leads to the desire rotation. In this figure we can see that the effect of increasing the number of decoupling sequences is two-fold: it increases the coherence of the system and it decreases the fidelity of the initial state. The increse of the coherence is due to the correlated magnetic noise added whose effect gets mitigated in the dynamical decoupling sequence, whereas the decrease in the fidelity is due to rotations not being ideal.
 
-The only requirement we ask for is that it should be a simulation of a
-physics-related project (but we consider physics-related rather broad, and e.g.
-simulation of biological systems or an engineering problem are also absolutely
-ok).
-We do advise you though to start from a project where there is some existing literature.
-in this way you have a starting point as well as something to compare your simulation to
-for validation.
 
-We encourage you to discuss your project idea with us during the time of class, 
-or remotely via the planning issue #1. 
-
-In any case, you need to fill in a short plan (a few lines) together with a
-reference to literature in the planning issue, *and* have it agreed by us before
-May 27 (i.e. latest two weeks before the presentation).
-
-If you have problems to come up with a good project, we can provide you with
-proven project ideas. But we first want you to try coming up with your own project!
-Having designed your own project will also give a small bonus for the grade.
+[1] Abobeih, M.H., Cramer, J., Bakker, M.A. et al. One-second coherence for a single electron spin coupled to a multi-qubit nuclear-spin environment. Nat Commun 9, 2552 (2018). https://doi.org/10.1038/s41467-018-04916-z
