@@ -1,5 +1,5 @@
 # Final project for the computational physics course in Delft University of Technology.
-By [Nicholas Zutt]() and [Asier Galicia](https://github.com/AGaliciaMartinez).
+By [Nicholas Zutt](https://github.com/nicholaszutt) and [Asier Galicia](https://github.com/AGaliciaMartinez).
 
 During the last project project in the course of computational physics in Delft University of Technology we implemented the [Runge Kutta](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods) algorithm to explore the dynamics of a Nitrogen Vacancy centre and its surrounding C13. We explored how dynamical decoupling techniques[1] can improve the coherence of the system when it suffers time correlated noise in the Magnetic field. Our goal was to obtain a qualitative agreement between simulations and the experiments shown in [1]. The main result we obtain in the simulations can be seen in the following figure,
 ![](presentation/images/key_image_blog.png) 
